@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h2>Clientes</h2>
+  <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-success">Nuevo Cliente</a>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Dirección</th>
+      <th>Localidad</th>
+      <th>Teléfonos</th>
+      <th>CUIT</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for cli in clientes %}
+    <tr>
+      <td>{{ cli.cliente }}</td>
+      <td>{{ cli.direccion }}</td>
+      <td>{{ cli.localidad }}</td>
+      <td>{{ cli.tel1 }}{% if cli.tel2 %} / {{ cli.tel2 }}{% endif %}</td>
+      <td>{{ cli.cuit }}</td>
+      <td>
+        <a href="{{ url_for('editar_cliente', id_cli=cli.id_cli) }}" class="btn btn-sm btn-warning">Editar</a>
+        <form method="post" action="{{ url_for('eliminar_cliente', id_cli=cli.id_cli) }}" class="d-inline"
+              onsubmit="return confirm('¿Eliminar este cliente?');">
+          <button class="btn btn-sm btn-danger">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

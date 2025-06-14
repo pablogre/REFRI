@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}
+Trabajos del Equipo
+{% endblock %}
+
+{% block content %}
+<h2>Trabajos del Equipo: {{ equipo.codigo }}</h2>
+<p><strong>N° Serie:</strong> {{ equipo.nro_serie }} | <strong>Marca:</strong> {{ equipo.marca }} | <strong>Modelo:</strong> {{ equipo.modelo }}</p>
+
+<div class="mb-3">
+  <a href="{{ url_for('nuevo_trabajo', id_equi=equipo.id_equi) }}" class="btn btn-success">Nuevo Trabajo</a>
+  <a href="{{ url_for('equipos', id_cli=equipo.id_cli) }}" class="btn btn-secondary">Volver a Equipos</a>
+</div>
+
+{% if trabajos %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Tarea</th>
+      <th>Repuestos</th>
+      <th>Observaciones</th>
+      <th>Pendiente</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for trabajo in trabajos %}
+    <tr>
+      <td>{{ trabajo.fecha }}</td>
+      <td>{{ trabajo.tarea }}</td>
+      <td>{{ trabajo.repuestos }}</td>
+      <td>{{ trabajo.obs }}</td>
+      <td>
+        {% if trabajo.pendiente %}
+          <span class="badge bg-warning text-dark">Sí</span>
+        {% else %}
+          <span class="badge bg-success">No</span>
+        {% endif %}
+      </td>
+      <td>
+        <a href="{{ url_for('editar_trabajo', id_trabajo=trabajo.id_trabajo) }}" class="btn btn-sm btn-primary">Editar</a>
+       <form action="{{ url_for('eliminar_trabajo', id_trabajo=trabajo.id_trabajo, id_equi=equipo.id_equi) }}" method="POST" class="d-inline delete-form">
+          <button type="button" class="btn btn-sm btn-danger">Eliminar</button>
+       </form>
+
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">No hay trabajos cargados para este equipo.</div>
+{% endif %}
+{% endblock %}

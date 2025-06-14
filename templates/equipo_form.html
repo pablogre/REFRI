@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ 'Editar Equipo' if equipo else 'Nuevo Equipo' }}
+{% endblock %}
+
+{% block content %}
+<h2>{{ 'Editar Equipo' if equipo else 'Nuevo Equipo' }}</h2>
+
+<form method="POST">
+  <input type="hidden" name="id_cli" value="{{ id_cli }}">
+  
+  <div class="mb-3">
+      <label class="form-label">Cliente:</label>
+      <input type="text" class="form-control" value="{{ cliente.cliente }}" readonly>
+  </div>
+
+  <div class="mb-3">
+    <label for="codigo" class="form-label">Código</label>
+    <input type="text" class="form-control" id="codigo" name="codigo" required
+           value="{{ equipo.codigo if equipo else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="nro_serie" class="form-label">Número de Serie</label>
+    <input type="text" class="form-control" id="nro_serie" name="nro_serie"
+           value="{{ equipo.nro_serie if equipo else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="capacidad" class="form-label">Capacidad</label>
+    <input type="text" class="form-control" id="capacidad" name="capacidad"
+           value="{{ equipo.capacidad if equipo else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="marca" class="form-label">Marca</label>
+    <input type="text" class="form-control" id="marca" name="marca"
+           value="{{ equipo.marca if equipo else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="modelo" class="form-label">Modelo</label>
+    <input type="text" class="form-control" id="modelo" name="modelo"
+           value="{{ equipo.modelo if equipo else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="refrigerante" class="form-label">Refrigerante</label>
+    <input type="text" class="form-control" id="refrigerante" name="refrigerante"
+           value="{{ equipo.refrigerante if equipo else '' }}">
+  </div>
+
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" id="altura" name="altura"
+           {% if equipo and equipo.altura %}checked{% endif %}>
+    <label class="form-check-label" for="altura">Está en altura</label>
+  </div>
+
+  <div class="mb-3">
+    <label for="obs" class="form-label">Observaciones</label>
+    <textarea class="form-control" id="obs" name="obs" rows="3"
+              placeholder="Notas o detalles sobre el equipo">{{ equipo.obs if equipo else '' }}</textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Guardar</button>
+  <a href="{{ url_for('equipos', id_cli=id_cli) }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

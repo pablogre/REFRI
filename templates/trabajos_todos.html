@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Todos los Trabajos</h2>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Trabajo</th>
+      <th>Operador</th>
+      <th>Pendiente</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tr in trabajos %}
+    <tr>
+      <td>{{ tr.fecha }}</td>
+      <td>{{ tr.trabajo }}</td>
+      <td>{{ tr.operador }}</td>
+      <td>{% if tr.pendiente %}✔{% else %}—{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

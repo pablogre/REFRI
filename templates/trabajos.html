@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {{ titulo }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ titulo }}</h2>
+
+  {% if trabajos %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Equipo</th>
+          <th>Descripción</th>
+          <th>Pendiente</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for trabajo in trabajos %}
+        <tr>
+          <td>{{ trabajo.fecha.strftime('%d/%m/%Y') if trabajo.fecha else '' }}</td>
+          <td>{{ trabajo.cliente }}</td>
+          <td>{{ trabajo.equipo_codigo }}</td>
+          <td>{{ trabajo.descripcion }}</td>
+          <td class="{{ 'text-danger' if trabajo.pendiente == 1 else 'text-success' }}">
+            {{ 'Pendiente' if trabajo.pendiente == 1 else 'Completado' }}
+          </td>
+          <td>
+            <form action="{{ url_for('eliminar_trabajo', id_trabajo=trabajo.id_trabajo, id_equipo=trabajo.id_equipo) }}" method="POST" class="delete-form d-inline">
+              <button type="button" class="btn btn-sm btn-danger">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">No hay trabajos registrados.</div>
+  {% endif %}
+
+  <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Volver al Inicio</a>
+</div>
+{% endblock %}

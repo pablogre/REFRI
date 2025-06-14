@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ 'Editar Cliente' if cliente else 'Nuevo Cliente' }}
+{% endblock %}
+
+{% block content %}
+<h2>{{ 'Editar Cliente' if cliente else 'Nuevo Cliente' }}</h2>
+
+<form method="POST">
+  <div class="mb-3">
+    <label for="cliente" class="form-label">Nombre del Cliente</label>
+    <input type="text" class="form-control" id="cliente" name="cliente" required
+           value="{{ cliente.cliente if cliente else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="direccion" class="form-label">Dirección</label>
+    <input type="text" class="form-control" id="direccion" name="direccion"
+           value="{{ cliente.direccion if cliente else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="localidad" class="form-label">Localidad</label>
+    <input type="text" class="form-control" id="localidad" name="localidad"
+           value="{{ cliente.localidad if cliente else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="tel1" class="form-label">Teléfono 1</label>
+    <input type="text" class="form-control" id="tel1" name="tel1"
+           value="{{ cliente.tel1 if cliente else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="tel2" class="form-label">Teléfono 2</label>
+    <input type="text" class="form-control" id="tel2" name="tel2"
+           value="{{ cliente.tel2 if cliente else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="cuit" class="form-label">CUIT</label>
+    <input type="text" class="form-control" id="cuit" name="cuit"
+           value="{{ cliente.cuit if cliente else '' }}">
+  </div>
+
+  <div class="mb-3">
+    <label for="obs" class="form-label">Observaciones</label>
+    <textarea class="form-control" id="obs" name="obs" rows="3"
+              placeholder="Notas u observaciones del cliente">{{ cliente.obs if cliente else '' }}</textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Guardar</button>
+  <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

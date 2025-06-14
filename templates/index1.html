@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container text-center">
+  <h1 class="mb-4">Panel Principal</h1>
+
+  <div class="row justify-content-center">
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Clientes</h5>
+          <p class="card-text">Gestión de clientes y sus equipos.</p>
+          <a href="{{ url_for('clientes') }}" class="btn btn-primary">Ir a Clientes</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Trabajos Pendientes</h5>
+          <p class="card-text">Ver los trabajos aún no finalizados.</p>
+          <a href="{{ url_for('trabajos_pendientes') }}" class="btn btn-warning">Ver Pendientes</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Todos los Trabajos</h5>
+          <p class="card-text">Consulta completa de los trabajos realizados.</p>
+          <a href="{{ url_for('trabajos_todos') }}" class="btn btn-secondary">Ver Todos</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

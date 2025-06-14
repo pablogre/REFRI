@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Trabajos Pendientes</h2>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Trabajo</th>
+      <th>Operador</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tr in trabajos %}
+    <tr>
+      <td>{{ tr.fecha }}</td>
+      <td>{{ tr.trabajo }}</td>
+      <td>{{ tr.operador }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
