@@ -30,7 +30,10 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('index') }}">Mantenimiento</a>
+      <a class="navbar-brand" href="{{ url_for('index') }}">
+       <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="height: 30px; margin-right: 5px;">
+        HVAC REFRIGERACIÓN
+      </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -63,32 +66,53 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Confirmación de eliminación con SweetAlert2 -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('.delete-form').forEach(form => {
-        // Previene envío nativo
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-        });
-        // Botón de eliminación
-        const btn = form.querySelector('button[type="button"]');
-        btn.addEventListener('click', function() {
-          Swal.fire({
+    
+  
+
+    // Función global para confirmaciones de eliminación
+    function confirmarEliminacion(evento, tipo, nombre) {
+        evento.preventDefault(); // Prevenir el envío del formulario
+        
+        const form = evento.target.closest('form'); // Obtener el formulario padre
+        
+        Swal.fire({
             title: '¿Estás seguro?',
-            text: "¡No podrás revertir esto!",
+            text: `Se eliminará ${tipo}: ${nombre}`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#aaa',
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
             confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-          }).then((result) => {
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        }).then((result) => {
             if (result.isConfirmed) {
-              form.submit();
+                // Si confirma, enviar el formulario
+                form.submit();
             }
-          });
         });
-      });
-    });
+    }
+    function confirmarMantenimiento(evento) {
+        evento.preventDefault();
+        
+        const form = evento.target.closest('form');
+        
+        Swal.fire({
+            title: 'Actualizar Mantenimiento',
+            text: '¿Actualizar mantenimiento a fecha actual?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, actualizar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
   </script>
 </body>
 </html>

@@ -6,45 +6,272 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h2>{{ titulo }}</h2>
+    <h2>{{ titulo }}</h2>
 
-  {% if trabajos %}
-  <div class="table-responsive">
-    <table class="table table-hover align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>Fecha</th>
-          <th>Cliente</th>
-          <th>Equipo</th>
-          <th>Descripción</th>
-          <th>Pendiente</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
+    <!-- Controles de filtrado -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="filtroCliente" class="form-label">Buscar Cliente:</label>
+                    <input type="text" class="form-control" id="filtroCliente" placeholder="Nombre del cliente...">
+                </div>
+                <div class="col-md-4">
+                    <label for="filtroEquipo" class="form-label">Buscar Equipo:</label>
+                    <input type="text" class="form-control" id="filtroEquipo" placeholder="Código del equipo...">
+                </div>
+                <div class="col-md-4">
+                    <label for="filtroEstado" class="form-label">Estado:</label>
+                    <select class="form-select" id="filtroEstado">
+                        <option value="">Todos</option>
+                        <option value="pendiente">Solo Pendientes</option>
+                        <option value="completado">Solo Completados</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-12">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">Limpiar filtros</button>
+                    <span class="ms-3 text-muted" id="contador-resultados"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if trabajos %}
+    <!-- Vista de Cards -->
+    <div class="row" id="contenedor-trabajos">
         {% for trabajo in trabajos %}
-        <tr>
-          <td>{{ trabajo.fecha.strftime('%d/%m/%Y') if trabajo.fecha else '' }}</td>
-          <td>{{ trabajo.cliente }}</td>
-          <td>{{ trabajo.equipo_codigo }}</td>
-          <td>{{ trabajo.descripcion }}</td>
-          <td class="{{ 'text-danger' if trabajo.pendiente == 1 else 'text-success' }}">
-            {{ 'Pendiente' if trabajo.pendiente == 1 else 'Completado' }}
-          </td>
-          <td>
-            <form action="{{ url_for('eliminar_trabajo', id_trabajo=trabajo.id_trabajo, id_equipo=trabajo.id_equipo) }}" method="POST" class="delete-form d-inline">
-              <button type="button" class="btn btn-sm btn-danger">Eliminar</button>
-            </form>
-          </td>
-        </tr>
+        <div class="col-12 col-md-6 col-lg-4 mb-3 trabajo-item" 
+             data-cliente="{{ trabajo.cliente|lower }}" 
+             data-equipo="{{ trabajo.equipo_codigo|lower }}"
+             data-estado="{{ 'pendiente' if trabajo.pendiente == 1 else 'completado' }}"
+             data-fecha="{{ trabajo.fecha }}">
+            <div class="card h-100 trabajo-card {{ 'pendiente' if trabajo.pendiente == 1 else 'completado' }}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><strong>{{ trabajo.cliente }}</strong></h6>
+                    <span class="badge {{ 'bg-danger' if trabajo.pendiente == 1 else 'bg-success' }}">
+                        {{ 'Pendiente' if trabajo.pendiente == 1 else 'Completado' }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">Fecha:</small><br>
+                            <strong>{{ trabajo.fecha.strftime('%d/%m/%Y') if trabajo.fecha else 'Sin fecha' }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Equipo:</small><br>
+                            <strong>{{ trabajo.equipo_codigo }}</strong>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Descripción:</small><br>
+                        <p class="mb-0" title="{{ trabajo.descripcion }}">{{ trabajo.descripcion }}</p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="botones-trabajo">
+                        <form action="{{ url_for('eliminar_trabajo', id_trabajo=trabajo.id_trabajo, id_equipo=trabajo.id_equipo) }}" 
+                              method="POST">
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="confirmarEliminacion(event, 'el trabajo', '{{ trabajo.descripcion[:30] }}...')">
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
-  <div class="alert alert-info">No hay trabajos registrados.</div>
-  {% endif %}
+    </div>
+    
+    <!-- Mensaje cuando no hay resultados -->
+    <div class="text-center mt-4 d-none" id="sin-resultados">
+        <p class="text-muted">No se encontraron trabajos que coincidan con los filtros.</p>
+    </div>
 
-  <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Volver al Inicio</a>
+    {% else %}
+    <div class="alert alert-info">No hay trabajos registrados.</div>
+    {% endif %}
+
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Volver al Inicio</a>
 </div>
+
+<style>
+    .trabajo-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 4px solid #dee2e6;
+    }
+
+    .trabajo-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .trabajo-card.pendiente {
+        border-left-color: #dc3545;
+        background: linear-gradient(to right, rgba(220, 53, 69, 0.05), transparent);
+    }
+
+    .trabajo-card.completado {
+        border-left-color: #28a745;
+        background: linear-gradient(to right, rgba(40, 167, 69, 0.05), transparent);
+    }
+
+    .card-header h6 {
+        color: #495057;
+    }
+
+    /* Botones simples y claros */
+    .botones-trabajo {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .botones-trabajo .btn {
+        font-size: 0.95rem;
+        padding: 10px 15px;
+        font-weight: 500;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        text-align: center;
+        flex: 1;
+    }
+    
+    .botones-trabajo form {
+        flex: 1;
+    }
+    
+    .botones-trabajo .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* Descripción con altura fija para alineación */
+    .trabajo-card .card-body p {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 4.5em;
+        line-height: 1.5em;
+    }
+
+    /* Media queries para móviles */
+    @media (max-width: 768px) {
+        .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        h2 {
+            font-size: 1.3rem;
+        }
+        
+        .botones-trabajo .btn {
+            font-size: 1rem;
+            padding: 12px 15px;
+        }
+    }
+
+    @media (max-width: 480px) {        
+        .botones-trabajo .btn {
+            font-size: 1.1rem;
+            padding: 14px 15px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filtroCliente = document.getElementById('filtroCliente');
+        const filtroEquipo = document.getElementById('filtroEquipo');
+        const filtroEstado = document.getElementById('filtroEstado');
+        const contadorResultados = document.getElementById('contador-resultados');
+        const sinResultados = document.getElementById('sin-resultados');
+        
+        function aplicarFiltros() {
+            const textoCliente = filtroCliente.value.toLowerCase();
+            const textoEquipo = filtroEquipo.value.toLowerCase();
+            const estadoSeleccionado = filtroEstado.value;
+            
+            let trabajosVisibles = Array.from(document.querySelectorAll('.trabajo-item'));
+            
+            // Filtrar por cliente
+            if (textoCliente) {
+                trabajosVisibles = trabajosVisibles.filter(item => {
+                    const cliente = item.getAttribute('data-cliente');
+                    return cliente.includes(textoCliente);
+                });
+            }
+            
+            // Filtrar por equipo
+            if (textoEquipo) {
+                trabajosVisibles = trabajosVisibles.filter(item => {
+                    const equipo = item.getAttribute('data-equipo');
+                    return equipo.includes(textoEquipo);
+                });
+            }
+            
+            // Filtrar por estado
+            if (estadoSeleccionado) {
+                trabajosVisibles = trabajosVisibles.filter(item => {
+                    const estado = item.getAttribute('data-estado');
+                    return estado === estadoSeleccionado;
+                });
+            }
+            
+            // Ordenar por fecha (más recientes primero)
+            trabajosVisibles.sort((a, b) => {
+                const fechaA = new Date(a.getAttribute('data-fecha'));
+                const fechaB = new Date(b.getAttribute('data-fecha'));
+                return fechaB - fechaA;
+            });
+            
+            // Ocultar todos los trabajos
+            document.querySelectorAll('.trabajo-item').forEach(item => {
+                item.style.display = 'none';
+            });
+            
+            // Mostrar solo los filtrados y ordenados
+            const contenedor = document.getElementById('contenedor-trabajos');
+            trabajosVisibles.forEach(item => {
+                item.style.display = 'block';
+                contenedor.appendChild(item); // Reordenar en el DOM
+            });
+            
+            // Actualizar contador
+            const total = document.querySelectorAll('.trabajo-item').length;
+            contadorResultados.textContent = `Mostrando ${trabajosVisibles.length} de ${total} trabajos`;
+            
+            // Mostrar/ocultar mensaje de sin resultados
+            if (trabajosVisibles.length === 0 && total > 0) {
+                sinResultados.classList.remove('d-none');
+            } else {
+                sinResultados.classList.add('d-none');
+            }
+        }
+        
+        // Event listeners
+        filtroCliente.addEventListener('input', aplicarFiltros);
+        filtroEquipo.addEventListener('input', aplicarFiltros);
+        filtroEstado.addEventListener('change', aplicarFiltros);
+        
+        // Función global para limpiar filtros
+        window.limpiarFiltros = function() {
+            filtroCliente.value = '';
+            filtroEquipo.value = '';
+            filtroEstado.value = '';
+            aplicarFiltros();
+        };
+        
+        // Aplicar filtros inicial
+        aplicarFiltros();
+    });
+</script>
+
 {% endblock %}

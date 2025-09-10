@@ -26,16 +26,21 @@
            value="{{ cliente.localidad if cliente else '' }}">
   </div>
 
-  <div class="mb-3">
-    <label for="tel1" class="form-label">Teléfono 1</label>
-    <input type="text" class="form-control" id="tel1" name="tel1"
-           value="{{ cliente.tel1 if cliente else '' }}">
-  </div>
-
-  <div class="mb-3">
-    <label for="tel2" class="form-label">Teléfono 2</label>
-    <input type="text" class="form-control" id="tel2" name="tel2"
-           value="{{ cliente.tel2 if cliente else '' }}">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label for="tel1" class="form-label">Teléfono 1</label>
+        <input type="text" class="form-control" id="tel1" name="tel1"
+               value="{{ cliente.tel1 if cliente else '' }}">
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label for="tel2" class="form-label">Teléfono 2</label>
+        <input type="text" class="form-control" id="tel2" name="tel2"
+               value="{{ cliente.tel2 if cliente else '' }}">
+      </div>
+    </div>
   </div>
 
   <div class="mb-3">
@@ -44,13 +49,86 @@
            value="{{ cliente.cuit if cliente else '' }}">
   </div>
 
+  <!-- NUEVOS CAMPOS DE MANTENIMIENTO PREVENTIVO -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>Mantenimiento Preventivo</h5>
+    </div>
+    <div class="card-body">
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="preventivo" name="preventivo"
+               {% if cliente and cliente.preventivo == 1 %}checked{% endif %}>
+        <label class="form-check-label" for="preventivo">
+          Cliente tiene abono de mantenimiento preventivo
+        </label>
+      </div>
+
+      <div class="row" id="campos-preventivo" style="{% if not cliente or cliente.preventivo != 1 %}display: none;{% endif %}">
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label for="importe" class="form-label">Importe del Abono</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" id="importe" name="importe" 
+                     min="0" step="0.01"
+                     value="{{ cliente.importe if cliente else '' }}"
+                     placeholder="0.00">
+            </div>
+            <small class="form-text text-muted">Valor mensual del abono</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label for="dias" class="form-label">Días entre mantenimientos</label>
+            <input type="number" class="form-control" id="dias" name="dias" min="1" max="365"
+                   value="{{ cliente.dias if cliente else '' }}"
+                   placeholder="Ej: 90, 180, 365">
+            <small class="form-text text-muted">Cada cuántos días se debe realizar el mantenimiento</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label for="fecha_mant" class="form-label">Fecha último mantenimiento</label>
+            <input type="date" class="form-control" id="fecha_mant" name="fecha_mant"
+                   value="{{ cliente.fecha_mant if cliente else '' }}">
+            <small class="form-text text-muted">Dejar vacío si es la primera vez</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="mb-3">
     <label for="obs" class="form-label">Observaciones</label>
     <textarea class="form-control" id="obs" name="obs" rows="3"
-              placeholder="Notas u observaciones del cliente">{{ cliente.obs if cliente else '' }}</textarea>
+              placeholder="Notas o detalles sobre el cliente">{{ cliente.obs if cliente else '' }}</textarea>
   </div>
 
   <button type="submit" class="btn btn-primary">Guardar</button>
   <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const preventivoCheckbox = document.getElementById('preventivo');
+    const camposPreventivo = document.getElementById('campos-preventivo');
+    const fechaMantInput = document.getElementById('fecha_mant');
+    
+    // Mostrar/ocultar campos según checkbox
+    preventivoCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            camposPreventivo.style.display = 'block';
+            // Si es un cliente nuevo y se marca preventivo, poner fecha actual
+            if (!fechaMantInput.value) {
+                const hoy = new Date();
+                const fechaFormateada = hoy.toISOString().split('T')[0];
+                fechaMantInput.value = fechaFormateada;
+            }
+        } else {
+            camposPreventivo.style.display = 'none';
+        }
+    });
+});
+</script>
+
 {% endblock %}

@@ -50,7 +50,19 @@
     <input type="text" class="form-control" id="refrigerante" name="refrigerante"
            value="{{ equipo.refrigerante if equipo else '' }}">
   </div>
-
+  
+  <div class="mb-3">
+      <label for="ubicacion" class="form-label">Ubicación</label>
+      <input type="text" class="form-control" id="ubicacion" name="ubicacion"
+            value="{{ equipo.ubicacion if equipo else '' }}">
+  </div>
+  
+  <div class="mb-3">
+      <label for="fecha_inst" class="form-label">Fecha de Inst.</label>
+      <input type="date" class="form-control" id="fecha_inst" name="fecha_inst"
+              value="{{ equipo.fecha_inst if equipo else '' }}">
+  </div>
+  
   <div class="form-check mb-3">
     <input class="form-check-input" type="checkbox" id="altura" name="altura"
            {% if equipo and equipo.altura %}checked{% endif %}>
@@ -66,4 +78,46 @@
   <button type="submit" class="btn btn-primary">Guardar</button>
   <a href="{{ url_for('equipos', id_cli=id_cli) }}" class="btn btn-secondary">Cancelar</a>
 </form>
+
+<style>
+.fecha-roja {
+    border: 2px solid #dc3545 !important;
+    background-color: #f8d7da !important;
+}
+.fecha-verde {
+    border: 2px solid #28a745 !important;
+    background-color: #d4edda !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const inputFecha = document.getElementById('fecha_inst');
+    
+    function validarFecha() {
+        if (!inputFecha.value) {
+            inputFecha.className = 'form-control';
+            return;
+        }
+        
+        const fechaInstalacion = new Date(inputFecha.value);
+        const fechaActual = new Date();
+        const fechaLimite = new Date(fechaInstalacion);
+        fechaLimite.setDate(fechaLimite.getDate() + 365);
+        
+        if (fechaActual >= fechaLimite) {
+            // ROJO: Han pasado 365 días o más
+            inputFecha.className = 'form-control fecha-roja';
+        } else {
+            // VERDE: No han pasado 365 días
+            inputFecha.className = 'form-control fecha-verde';
+        }
+    }
+    
+    // Validar al cargar y al cambiar
+    validarFecha();
+    inputFecha.addEventListener('change', validarFecha);
+});
+</script>
+
 {% endblock %}

@@ -3,51 +3,227 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h2>Equipos del Cliente: {{ cliente.cliente }}</h2>
-  <a href="{{ url_for('nuevo_equipo', id_cli=cliente.id_cli) }}" class="btn btn-primary mb-3">Agregar Equipo</a>
-  <a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">Volver a Clientes</a>
+    <h2>Equipos del Cliente: {{ cliente.cliente }}</h2>
+    <div class="mb-3">
+        <a href="{{ url_for('nuevo_equipo', id_cli=cliente.id_cli) }}" class="btn btn-primary">Agregar Equipo</a>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver a Clientes</a>
+    </div>
 
-  <div class="table-responsive">
-    <table class="table table-striped table-hover align-middle">
-      <thead class="table-dark">
-        <tr>
-          <th>ID</th>
-          <th>Código</th>
-          <th>Nro Serie</th>
-          <th>Capacidad</th>
-          <th>Marca</th>
-          <th>Modelo</th>
-          <th>Refrigerante</th>
-          <th>Altura</th>
-          <th>Observaciones</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
+    <!-- Vista de Cards -->
+    <div class="row">
         {% for equipo in equipos %}
-        <tr>
-          <td>{{ equipo.id_equipo }}</td>
-          <td>{{ equipo.codigo }}</td>
-          <td>{{ equipo.nro_serie }}</td>
-          <td>{{ equipo.capacidad }}</td>
-          <td>{{ equipo.marca }}</td>
-          <td>{{ equipo.modelo }}</td>
-          <td>{{ equipo.refrigerante }}</td>
-          <td>{{ 'Sí' if equipo.altura else 'No' }}</td>
-          <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ equipo.obs }}">{{ equipo.obs }}</td>
-          <td>
-            <a href="{{ url_for('trabajos_equipo', id_equipo=equipo.id_equipo) }}" class="btn btn-info btn-sm mb-1">Ver Trabajos</a>
-            <a href="{{ url_for('editar_equipo', id_equipo=equipo.id_equipo) }}" class="btn btn-warning btn-sm mb-1">Editar</a>
-            <form action="{{ url_for('eliminar_equipo', id_equipo=equipo.id_equipo, id_cli=cliente.id_cli) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('¿Seguro que querés eliminar este equipo?');">
-              <button type="submit" class="btn btn-danger btn-sm mb-1">Eliminar</button>
-            </form>
-          </td>
-        </tr>
+        <div class="col-12 col-md-6 col-lg-4 mb-3">
+            <div class="card h-100 equipo-card" data-fecha="{{ equipo.fecha_inst }}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><strong>{{ equipo.codigo }}</strong></h6>
+                    <div class="text-end">
+                        <small class="text-muted d-block">Instalación:</small>
+                        <span class="badge fecha-badge">
+                            {% if equipo.fecha_inst %}
+                                {{ equipo.fecha_inst.strftime('%d/%m/%Y') if equipo.fecha_inst.strftime else equipo.fecha_inst }}
+                            {% else %}
+                                Sin fecha
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">Serie:</small><br>
+                            <strong>{{ equipo.nro_serie or '-' }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Capacidad:</small><br>
+                            <strong>{{ equipo.capacidad or '-' }}</strong>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">Marca:</small><br>
+                            <strong>{{ equipo.marca or '-' }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Modelo:</small><br>
+                            <strong>{{ equipo.modelo or '-' }}</strong>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">Refrigerante:</small><br>
+                            <strong>{{ equipo.refrigerante or '-' }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Altura:</small><br>
+                            <strong>{{ 'Sí' if equipo.altura else 'No' }}</strong>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Ubicación:</small><br>
+                        <strong>{{ equipo.ubicacion or '-' }}</strong>
+                    </div>
+                    {% if equipo.obs %}
+                    <div class="mb-2">
+                        <small class="text-muted">Observaciones:</small><br>
+                        <span class="text-truncate d-block" title="{{ equipo.obs }}">{{ equipo.obs }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="botones-equipo">
+                        <a href="{{ url_for('trabajos_equipo', id_equipo=equipo.id_equipo) }}" class="btn btn-info">
+                            Trabajos
+                        </a>
+                        <a href="{{ url_for('editar_equipo', id_equipo=equipo.id_equipo) }}" class="btn btn-warning">
+                            Editar
+                        </a>
+                        <form action="{{ url_for('eliminar_equipo', id_equipo=equipo.id_equipo, id_cli=cliente.id_cli) }}" 
+                              method="POST">
+                            <button type="submit" class="btn btn-danger" 
+                                    onclick="confirmarEliminacion(event, 'el equipo', '{{ equipo.codigo }}')">
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% else %}
-        <tr><td colspan="10" class="text-center">No hay equipos cargados para este cliente.</td></tr>
+        <div class="col-12">
+            <div class="text-center mt-4">
+                <p class="text-muted">No hay equipos cargados para este cliente.</p>
+            </div>
+        </div>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    </div>
 </div>
+
+<style>
+    .equipo-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 4px solid #dee2e6;
+    }
+
+    .equipo-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .equipo-card.fecha-verde {
+        border-left-color: #28a745;
+        background: linear-gradient(to right, rgba(40, 167, 69, 0.05), transparent);
+    }
+
+    .equipo-card.fecha-roja {
+        border-left-color: #dc3545;
+        background: linear-gradient(to right, rgba(220, 53, 69, 0.05), transparent);
+    }
+
+    .fecha-badge {
+        font-size: 0.75rem;
+        padding: 0.4em 0.6em;
+    }
+
+    .fecha-badge.badge-verde {
+        background-color: #28a745 !important;
+        color: white;
+    }
+
+    .fecha-badge.badge-roja {
+        background-color: #dc3545 !important;
+        color: white;
+    }
+
+    .card-header h6 {
+        color: #495057;
+    }
+
+    /* Botones simples y claros */
+    .botones-equipo {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .botones-equipo .btn {
+        font-size: 0.95rem;
+        padding: 10px 15px;
+        font-weight: 500;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        text-align: center;
+    }
+    
+    .botones-equipo .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* En pantallas medianas, botones en fila */
+    @media (min-width: 768px) {
+        .botones-equipo {
+            flex-direction: row;
+        }
+        
+        .botones-equipo .btn {
+            font-size: 0.8rem;
+            padding: 8px 12px;
+        }
+    }
+
+    /* En pantallas grandes, botones más pequeños */
+    @media (min-width: 992px) {
+        .botones-equipo .btn {
+            font-size: 0.75rem;
+            padding: 6px 10px;
+        }
+    }
+
+    /* Para móviles muy pequeños */
+    @media (max-width: 480px) {
+        .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .botones-equipo .btn {
+            font-size: 1rem;
+            padding: 12px 15px;
+        }
+        
+        h2 {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const equipoCards = document.querySelectorAll('.equipo-card[data-fecha]');
+        
+        equipoCards.forEach(function(card) {
+            const fechaStr = card.getAttribute('data-fecha');
+            const fechaBadge = card.querySelector('.fecha-badge');
+            
+            if (!fechaStr || fechaStr === 'None') return;
+            
+            const fechaInstalacion = new Date(fechaStr);
+            const fechaActual = new Date();
+            const fechaLimite = new Date(fechaInstalacion);
+            fechaLimite.setDate(fechaLimite.getDate() + 365);
+            
+            if (fechaActual >= fechaLimite) {
+                // ROJO: Han pasado 365 días o más
+                card.classList.add('fecha-roja');
+                fechaBadge.classList.add('badge-roja');
+            } else {
+                // VERDE: No han pasado 365 días
+                card.classList.add('fecha-verde');
+                fechaBadge.classList.add('badge-verde');
+            }
+        });
+    });
+</script>
+
 {% endblock %}

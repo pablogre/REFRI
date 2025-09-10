@@ -3,67 +3,183 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h2>Trabajos del Equipo: {{ equipo.codigo }}</h2>
-  <a href="{{ url_for('equipos', id_cli=equipo.id_cli) }}" class="btn btn-secondary mb-3">Volver a Equipos</a>
+    <h2>Trabajos del Equipo: {{ equipo.codigo }}</h2>
+    <a href="{{ url_for('equipos', id_cli=equipo.id_cli) }}" class="btn btn-secondary mb-3">Volver a Equipos</a>
  
-  <!-- Listado de trabajos -->
-  <div class="mb-4">
-    <h4>Trabajos Existentes</h4>
-    {% if trabajos %}
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Trabajo Realizado</th>
-              <th>Fecha</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
+    <!-- Listado de trabajos en Cards -->
+    <div class="mb-4">
+        <h4>Trabajos Existentes</h4>
+        {% if trabajos %}
+        <div class="row">
             {% for trabajo in trabajos %}
-            <tr>
-              <td>{{ trabajo['id_trabajo'] }}</td>
-              <td>{{ trabajo['descripcion'] }}</td>
-              <td>{{ trabajo.fecha.strftime('%Y-%m-%d') if trabajo.fecha else '' }}</td>
-              <td class="{{ 'text-danger' if trabajo.pendiente == 1 else 'text-success' }}">
-                  {{ 'Pendiente' if trabajo.pendiente == 1 else 'Completado' }}
-              </td>
-              <td>
-                <form action="{{ url_for('eliminar_trabajo', id_trabajo=trabajo.id_trabajo, id_equipo=equipo.id_equipo) }}" method="post" class="d-inline delete-form">
-                  <button type="button" class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
-              </td>
-            </tr>
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                <div class="card h-100 trabajo-card {{ 'pendiente' if trabajo.pendiente == 1 else 'completado' }}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><strong>Trabajo #{{ trabajo['id_trabajo'] }}</strong></h6>
+                        <span class="badge {{ 'bg-danger' if trabajo.pendiente == 1 else 'bg-success' }}">
+                            {{ 'Pendiente' if trabajo.pendiente == 1 else 'Completado' }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <small class="text-muted">Fecha:</small><br>
+                            <strong>{{ trabajo.fecha.strftime('%d/%m/%Y') if trabajo.fecha else 'Sin fecha' }}</strong>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Descripción:</small><br>
+                            <p class="mb-0">{{ trabajo['descripcion'] }}</p>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="botones-trabajo">
+                            <form action="{{ url_for('eliminar_trabajo', id_trabajo=trabajo.id_trabajo, id_equipo=equipo.id_equipo) }}" 
+                                  method="post">
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="confirmarEliminacion(event, 'el trabajo', '#{{ trabajo['id_trabajo'] }}')">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% else %}
-      <p>No hay trabajos cargados para este equipo.</p>
-    {% endif %}
-  </div>
+        </div>
+        {% else %}
+        <div class="text-center mt-4">
+            <p class="text-muted">No hay trabajos cargados para este equipo.</p>
+        </div>
+        {% endif %}
+    </div>
 
-  <!-- Formulario para agregar trabajo -->
-  <hr style="border: 1px solid black;">   
-  <div>
-    <h4>Agregar Nuevo Trabajo</h4>
-    <form method="POST">
-      <div class="mb-3">
-        <label for="descripcion" class="form-label">Descripción del Trabajo</label>
-        <textarea id="descripcion" name="descripcion" class="form-control" required></textarea>
-      </div>
-      <div class="mb-3">
-        <label for="fecha" class="form-label">Fecha</label>
-        <input type="date" id="fecha" name="fecha" class="form-control" required>
-      </div>
-      <div class="form-check mb-3">
-        <input type="checkbox" id="pendiente" name="pendiente" class="form-check-input">
-        <label for="pendiente" class="form-check-label">Pendiente</label>
-      </div>
-      <button type="submit" class="btn btn-success">Agregar Trabajo</button>
-    </form>
-  </div>
+    <!-- Formulario para agregar trabajo -->
+    <hr style="border: 2px solid #dee2e6; margin: 2rem 0;">   
+    
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">Agregar Nuevo Trabajo</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción del Trabajo</label>
+                    <textarea id="descripcion" name="descripcion" class="form-control" rows="4" required 
+                              placeholder="Describe el trabajo realizado o a realizar..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="fecha" class="form-label">Fecha</label>
+                    <input type="date" id="fecha" name="fecha" class="form-control" required>
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="pendiente" name="pendiente" class="form-check-input">
+                    <label for="pendiente" class="form-check-label">Marcar como pendiente</label>
+                </div>
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus"></i> Agregar Trabajo
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
+
+<style>
+    .trabajo-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 4px solid #dee2e6;
+    }
+
+    .trabajo-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .trabajo-card.pendiente {
+        border-left-color: #dc3545;
+        background: linear-gradient(to right, rgba(220, 53, 69, 0.05), transparent);
+    }
+
+    .trabajo-card.completado {
+        border-left-color: #28a745;
+        background: linear-gradient(to right, rgba(40, 167, 69, 0.05), transparent);
+    }
+
+    .card-header h6 {
+        color: #495057;
+    }
+
+    /* Botones simples y claros */
+    .botones-trabajo {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .botones-trabajo .btn {
+        font-size: 0.95rem;
+        padding: 10px 15px;
+        font-weight: 500;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        text-align: center;
+        flex: 1;
+    }
+    
+    .botones-trabajo form {
+        flex: 1;
+    }
+    
+    .botones-trabajo .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* Formulario mejorado */
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* Media queries para móviles */
+    @media (max-width: 768px) {
+        .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        h2 {
+            font-size: 1.3rem;
+        }
+        
+        .botones-trabajo .btn {
+            font-size: 1rem;
+            padding: 12px 15px;
+        }
+    }
+
+    @media (max-width: 480px) {        
+        .botones-trabajo .btn {
+            font-size: 1.1rem;
+            padding: 14px 15px;
+        }
+        
+        .btn-lg {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+        }
+    }
+</style>
+
+<script>
+    // Establecer fecha actual por defecto
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaInput = document.getElementById('fecha');
+        if (!fechaInput.value) {
+            const hoy = new Date();
+            const fechaFormateada = hoy.toISOString().split('T')[0];
+            fechaInput.value = fechaFormateada;
+        }
+    });
+</script>
+
 {% endblock %}

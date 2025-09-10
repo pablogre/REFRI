@@ -1,0 +1,4 @@
+afregar fecha de instalación, garantia 365 días
+agregar mant. preventivo pedir cantidad de dias debo agregar un campo fecha_mant y al cargarlo renovar la fecha en cliente y el sistema debe enviar un mail avisando el mantenimiento preventivo
+agregar costo del mantenimiento y solo lo puede ver el admin.
+mostrar la cantidad  de equipos en clientes

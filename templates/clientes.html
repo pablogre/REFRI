@@ -1,38 +1,440 @@
 {% extends 'base.html' %}
+{% block title %}Lista de Clientes{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between mb-3">
-  <h2>Clientes</h2>
-  <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-success">Nuevo Cliente</a>
+<div class="container mt-4">
+    <h2>Lista de Clientes</h2>
+    
+    <!-- Controles de filtrado y ordenamiento -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="filtroCliente" class="form-label">Buscar Cliente:</label>
+                    <input type="text" class="form-control" id="filtroCliente" placeholder="Escribí el nombre del cliente...">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroPreventivo" class="form-label">Filtrar por:</label>
+                    <select class="form-select" id="filtroPreventivo">
+                        <option value="">Todos los clientes</option>
+                        <option value="preventivo">Solo con preventivo</option>
+                        <option value="sin-preventivo">Sin preventivo</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="ordenamiento" class="form-label">Ordenar por:</label>
+                    <select class="form-select" id="ordenamiento">
+                        <option value="nombre">Nombre A-Z</option>
+                        <option value="vencidos-primero">Vencidos primero</option>
+                        <option value="equipos-desc">Más equipos</option>
+                        <option value="equipos-asc">Menos equipos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-12">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">Limpiar filtros</button>
+                    <span class="ms-3 text-muted" id="contador-resultados"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-primary">Agregar Cliente</a>
+    </div>
+
+    <!-- Vista de Cards -->
+    <div class="row" id="contenedor-clientes">
+        {% for cliente in clientes %}
+        <div class="col-12 col-md-6 col-lg-4 mb-3 cliente-item" 
+             data-nombre="{{ cliente.cliente|lower }}" 
+             data-preventivo="{{ cliente.preventivo }}" 
+             data-equipos="{{ cliente.total_equipos or 0 }}"
+             data-fecha-mant="{{ cliente.fecha_mant }}" 
+             data-dias="{{ cliente.dias or 0 }}">
+            <div class="card h-100 cliente-card" data-preventivo="{{ cliente.preventivo }}" data-fecha-mant="{{ cliente.fecha_mant }}" data-dias="{{ cliente.dias }}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><strong>{{ cliente.cliente }}</strong></h6>
+                    <div class="text-end">
+                        <small class="text-muted d-block">Equipos:</small>
+                        <span class="badge bg-info">{{ cliente.total_equipos or 0 }}</span>
+                        {% if cliente.preventivo == 1 %}
+                        <div class="mt-1">
+                            <small class="text-muted d-block">Estado:</small>
+                            <span class="badge mantenimiento-badge" id="badge-{{ cliente.id_cli }}">
+                                Verificando...
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">Dirección:</small><br>
+                            <strong>{{ cliente.direccion or '-' }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Localidad:</small><br>
+                            <strong>{{ cliente.localidad or '-' }}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">Teléfono 1:</small><br>
+                            <strong>{{ cliente.tel1 or '-' }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Teléfono 2:</small><br>
+                            <strong>{{ cliente.tel2 or '-' }}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <small class="text-muted">CUIT:</small><br>
+                        <strong>{{ cliente.cuit or '-' }}</strong>
+                    </div>
+                    
+                    {% if cliente.preventivo == 1 %}
+                    <div class="preventivo-info mb-2">
+                        <div class="row">
+                            <div class="col-4">
+                                <small class="text-muted">Importe:</small><br>
+                                <strong>${{ "%.2f"|format(cliente.importe) if cliente.importe else '0.00' }}</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Días:</small><br>
+                                <strong>{{ cliente.dias or '-' }}</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Últ. Mantto:</small><br>
+                                <strong id="fecha-mant-{{ cliente.id_cli }}">
+                                    {% if cliente.fecha_mant %}
+                                        {{ cliente.fecha_mant.strftime('%d/%m/%Y') if cliente.fecha_mant.strftime else cliente.fecha_mant }}
+                                    {% else %}
+                                        Sin fecha
+                                    {% endif %}
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if cliente.obs %}
+                    <div class="mb-2">
+                        <small class="text-muted">Observaciones:</small><br>
+                        <span class="text-truncate d-block" title="{{ cliente.obs }}">{{ cliente.obs }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="botones-cliente">
+                        <a href="{{ url_for('equipos', id_cli=cliente.id_cli) }}" class="btn btn-info">
+                            Equipos
+                        </a>
+                        <a href="{{ url_for('editar_cliente', id_cli=cliente.id_cli) }}" class="btn btn-warning">
+                            Editar
+                        </a>
+                        {% if cliente.preventivo == 1 %}
+                        <form action="{{ url_for('actualizar_mantenimiento', id_cli=cliente.id_cli) }}" method="POST">
+                            <button type="submit" class="btn btn-success" 
+                                    onclick="confirmarMantenimiento(event)">
+                                Mantto
+                            </button>
+                        </form>
+                        {% endif %}
+                        <form action="{{ url_for('eliminar_cliente', id_cli=cliente.id_cli) }}" 
+                              method="POST">
+                            <button type="submit" class="btn btn-danger" 
+                                    onclick="confirmarEliminacion(event, 'el cliente', '{{ cliente.cliente }}')">
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="text-center mt-4">
+                <p class="text-muted">No hay clientes cargados.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Mensaje cuando no hay resultados -->
+    <div class="text-center mt-4 d-none" id="sin-resultados">
+        <p class="text-muted">No se encontraron clientes que coincidan con los filtros.</p>
+    </div>
 </div>
 
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Dirección</th>
-      <th>Localidad</th>
-      <th>Teléfonos</th>
-      <th>CUIT</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for cli in clientes %}
-    <tr>
-      <td>{{ cli.cliente }}</td>
-      <td>{{ cli.direccion }}</td>
-      <td>{{ cli.localidad }}</td>
-      <td>{{ cli.tel1 }}{% if cli.tel2 %} / {{ cli.tel2 }}{% endif %}</td>
-      <td>{{ cli.cuit }}</td>
-      <td>
-        <a href="{{ url_for('editar_cliente', id_cli=cli.id_cli) }}" class="btn btn-sm btn-warning">Editar</a>
-        <form method="post" action="{{ url_for('eliminar_cliente', id_cli=cli.id_cli) }}" class="d-inline"
-              onsubmit="return confirm('¿Eliminar este cliente?');">
-          <button class="btn btn-sm btn-danger">Eliminar</button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<style>
+    .cliente-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 4px solid #007bff;
+    }
+
+    .cliente-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .cliente-card.mantenimiento-vencido {
+        border-left-color: #dc3545;
+        background: linear-gradient(to right, rgba(220, 53, 69, 0.05), transparent);
+    }
+
+    .cliente-card.mantenimiento-ok {
+        border-left-color: #28a745;
+        background: linear-gradient(to right, rgba(40, 167, 69, 0.05), transparent);
+    }
+
+    .card-header h6 {
+        color: #495057;
+    }
+
+    .mantenimiento-badge.vencido {
+        background-color: #dc3545 !important;
+        color: white;
+    }
+
+    .mantenimiento-badge.ok {
+        background-color: #28a745 !important;
+        color: white;
+    }
+
+    .mantenimiento-badge.sin-fecha {
+        background-color: #ffc107 !important;
+        color: black;
+    }
+
+    .preventivo-info {
+        background-color: #f8f9fa;
+        padding: 8px;
+        border-radius: 5px;
+        margin: 8px 0;
+    }
+
+    /* Botones simples y claros */
+    .botones-cliente {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .botones-cliente .btn {
+        font-size: 0.95rem;
+        padding: 10px 15px;
+        font-weight: 500;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        text-align: center;
+        flex: 1;
+    }
+    
+    .botones-cliente form {
+        flex: 1;
+    }
+    
+    .botones-cliente .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* En pantallas medianas, botones en fila */
+    @media (min-width: 768px) {
+        .botones-cliente {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        
+        .botones-cliente .btn {
+            font-size: 0.75rem;
+            padding: 8px 10px;
+            flex: 1;
+            min-width: 60px;
+        }
+    }
+
+    /* En pantallas grandes, botones más pequeños */
+    @media (min-width: 992px) {
+        .botones-cliente .btn {
+            font-size: 0.7rem;
+            padding: 6px 8px;
+        }
+    }
+
+    /* Para móviles muy pequeños */
+    @media (max-width: 480px) {
+        .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .botones-cliente .btn {
+            font-size: 1rem;
+            padding: 12px 15px;
+        }
+        
+        h2 {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const clienteCards = document.querySelectorAll('.cliente-card[data-preventivo="1"]');
+        const filtroNombre = document.getElementById('filtroCliente');
+        const filtroPreventivo = document.getElementById('filtroPreventivo');
+        const ordenamiento = document.getElementById('ordenamiento');
+        const contadorResultados = document.getElementById('contador-resultados');
+        const sinResultados = document.getElementById('sin-resultados');
+        
+        // Calcular estado de mantenimiento para cada cliente
+        clienteCards.forEach(function(card) {
+            const fechaMantStr = card.getAttribute('data-fecha-mant');
+            const dias = parseInt(card.getAttribute('data-dias')) || 0;
+            const clienteId = card.querySelector('.mantenimiento-badge').id.replace('badge-', '');
+            const badge = document.getElementById(`badge-${clienteId}`);
+            const clienteItem = card.closest('.cliente-item');
+            
+            if (!fechaMantStr || fechaMantStr === 'None' || !dias) {
+                badge.textContent = 'Sin Config';
+                badge.className = 'badge mantenimiento-badge sin-fecha';
+                clienteItem.setAttribute('data-estado-mant', 'sin-config');
+                return;
+            }
+            
+            const fechaMantenimiento = new Date(fechaMantStr);
+            const fechaActual = new Date();
+            const fechaVencimiento = new Date(fechaMantenimiento);
+            fechaVencimiento.setDate(fechaVencimiento.getDate() + dias);
+            
+            if (fechaActual > fechaVencimiento) {
+                const diasVencidos = Math.floor((fechaActual - fechaVencimiento) / (1000 * 60 * 60 * 24));
+                badge.textContent = `Vencido (${diasVencidos}d)`;
+                badge.className = 'badge mantenimiento-badge vencido';
+                card.classList.add('mantenimiento-vencido');
+                clienteItem.setAttribute('data-estado-mant', 'vencido');
+                clienteItem.setAttribute('data-dias-vencidos', diasVencidos);
+            } else {
+                const diasRestantes = Math.floor((fechaVencimiento - fechaActual) / (1000 * 60 * 60 * 24));
+                badge.textContent = `OK (${diasRestantes}d)`;
+                badge.className = 'badge mantenimiento-badge ok';
+                card.classList.add('mantenimiento-ok');
+                clienteItem.setAttribute('data-estado-mant', 'ok');
+                clienteItem.setAttribute('data-dias-vencidos', 0);
+            }
+        });
+        
+        // Para clientes sin preventivo
+        document.querySelectorAll('.cliente-item[data-preventivo="0"]').forEach(function(item) {
+            item.setAttribute('data-estado-mant', 'sin-preventivo');
+            item.setAttribute('data-dias-vencidos', 0);
+        });
+        
+        function aplicarFiltros() {
+            const textoFiltro = filtroNombre.value.toLowerCase();
+            const tipoPreventivo = filtroPreventivo.value;
+            const tipoOrden = ordenamiento.value;
+            
+            let clientesVisibles = Array.from(document.querySelectorAll('.cliente-item'));
+            
+            // Filtrar por nombre
+            if (textoFiltro) {
+                clientesVisibles = clientesVisibles.filter(item => {
+                    const nombre = item.getAttribute('data-nombre');
+                    return nombre.includes(textoFiltro);
+                });
+            }
+            
+            // Filtrar por tipo de preventivo
+            if (tipoPreventivo) {
+                clientesVisibles = clientesVisibles.filter(item => {
+                    const preventivo = item.getAttribute('data-preventivo');
+                    if (tipoPreventivo === 'preventivo') {
+                        return preventivo === '1';
+                    } else if (tipoPreventivo === 'sin-preventivo') {
+                        return preventivo === '0';
+                    }
+                    return true;
+                });
+            }
+            
+            // Ordenar
+            clientesVisibles.sort((a, b) => {
+                switch (tipoOrden) {
+                    case 'vencidos-primero':
+                        const estadoA = a.getAttribute('data-estado-mant');
+                        const estadoB = b.getAttribute('data-estado-mant');
+                        const diasVencidosA = parseInt(a.getAttribute('data-dias-vencidos')) || 0;
+                        const diasVencidosB = parseInt(b.getAttribute('data-dias-vencidos')) || 0;
+                        
+                        // Primero vencidos (por días vencidos desc), luego ok, luego sin preventivo
+                        if (estadoA === 'vencido' && estadoB !== 'vencido') return -1;
+                        if (estadoA !== 'vencido' && estadoB === 'vencido') return 1;
+                        if (estadoA === 'vencido' && estadoB === 'vencido') return diasVencidosB - diasVencidosA;
+                        
+                        if (estadoA === 'ok' && estadoB === 'sin-preventivo') return -1;
+                        if (estadoA === 'sin-preventivo' && estadoB === 'ok') return 1;
+                        
+                        return a.getAttribute('data-nombre').localeCompare(b.getAttribute('data-nombre'));
+                        
+                    case 'equipos-desc':
+                        return parseInt(b.getAttribute('data-equipos')) - parseInt(a.getAttribute('data-equipos'));
+                        
+                    case 'equipos-asc':
+                        return parseInt(a.getAttribute('data-equipos')) - parseInt(b.getAttribute('data-equipos'));
+                        
+                    default: // nombre
+                        return a.getAttribute('data-nombre').localeCompare(b.getAttribute('data-nombre'));
+                }
+            });
+            
+            // Ocultar todos los clientes
+            document.querySelectorAll('.cliente-item').forEach(item => {
+                item.style.display = 'none';
+            });
+            
+            // Mostrar solo los filtrados y ordenados
+            const contenedor = document.getElementById('contenedor-clientes');
+            clientesVisibles.forEach(item => {
+                item.style.display = 'block';
+                contenedor.appendChild(item); // Reordenar en el DOM
+            });
+            
+            // Actualizar contador
+            contadorResultados.textContent = `Mostrando ${clientesVisibles.length} de ${document.querySelectorAll('.cliente-item').length} clientes`;
+            
+            // Mostrar/ocultar mensaje de sin resultados
+            if (clientesVisibles.length === 0) {
+                sinResultados.classList.remove('d-none');
+            } else {
+                sinResultados.classList.add('d-none');
+            }
+        }
+        
+        // Event listeners
+        filtroNombre.addEventListener('input', aplicarFiltros);
+        filtroPreventivo.addEventListener('change', aplicarFiltros);
+        ordenamiento.addEventListener('change', aplicarFiltros);
+        
+        // Función global para limpiar filtros
+        window.limpiarFiltros = function() {
+            filtroNombre.value = '';
+            filtroPreventivo.value = '';
+            ordenamiento.value = 'nombre';
+            aplicarFiltros();
+        };
+        
+        // Aplicar filtros inicial
+        aplicarFiltros();
+    });
+</script>
+
 {% endblock %}
