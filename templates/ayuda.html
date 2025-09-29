@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario - Sistema de Control de Mantenimiento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 70px);
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            padding: 20px 0;
+            z-index: 100;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 12px 25px;
+            color: #495057;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar a:hover {
+            background: #e9ecef;
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+        
+        .sidebar a.active {
+            background: #e7e9fd;
+            border-left-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .sidebar .section-title {
+            padding: 15px 25px 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #6c757d;
+            letter-spacing: 0.5px;
+        }
+        
+        .content {
+            margin-left: 280px;
+            padding: 30px;
+            max-width: 1200px;
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            border-radius: 10px;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        .badge-custom {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        .badge-success-custom {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .badge-danger-custom {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .badge-warning-custom {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-tip {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            color: #1565c0;
+        }
+        
+        .alert-warning-custom {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            color: #e65100;
+        }
+        
+        .feature-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .btn-help {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s;
+        }
+        
+        .btn-help:hover {
+            transform: scale(1.1);
+        }
+        
+        .search-box {
+            padding: 15px 25px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .search-box input {
+            border-radius: 20px;
+            padding: 8px 15px;
+            border: 1px solid #ced4da;
+            width: 100%;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #e83e8c;
+            font-size: 0.9em;
+        }
+        
+        .toggle-sidebar {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 10px;
+            z-index: 101;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .toggle-sidebar {
+                display: block;
+            }
+            
+            .btn-help {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        h3 {
+            color: #495057;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        ul {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .visual-indicator {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin: 0 3px;
+        }
+        
+        .indicator-green {
+            background: #28a745;
+            color: white;
+        }
+        
+        .indicator-red {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .indicator-yellow {
+            background: #ffc107;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark fixed-top">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="fas fa-book"></i> 
+                <span class="d-none d-md-inline">Manual de Usuario - Sistema de Control de Mantenimiento</span>
+                <span class="d-md-none">Manual de Ayuda</span>
+            </span>
+            <a href="/" class="btn btn-light btn-sm" target="_blank" title="Volver al sistema">
+                <i class="fas fa-home"></i> 
+                <span class="d-none d-sm-inline">Volver al Sistema</span>
+                <span class="d-sm-none">Volver</span>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Toggle Sidebar Button (Mobile) -->
+    <div class="toggle-sidebar" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i> Menú
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Buscar en el manual..." onkeyup="searchContent()">
+        </div>
+        
+        <div class="section-title">Introducción</div>
+        <a href="#" onclick="showSection('intro')" class="active">
+            <i class="fas fa-home"></i> Introducción
+        </a>
+        <a href="#" onclick="showSection('acceso')">
+            <i class="fas fa-sign-in-alt"></i> Acceso al Sistema
+        </a>
+        
+        <div class="section-title">Gestión</div>
+        <a href="#" onclick="showSection('clientes')">
+            <i class="fas fa-users"></i> Gestión de Clientes
+        </a>
+        <a href="#" onclick="showSection('equipos')">
+            <i class="fas fa-cog"></i> Gestión de Equipos
+        </a>
+        <a href="#" onclick="showSection('trabajos')">
+            <i class="fas fa-tasks"></i> Gestión de Trabajos
+        </a>
+        
+        <div class="section-title">Funcionalidades</div>
+        <a href="#" onclick="showSection('preventivo')">
+            <i class="fas fa-calendar-check"></i> Mantenimiento Preventivo
+        </a>
+        <a href="#" onclick="showSection('busqueda')">
+            <i class="fas fa-search"></i> Búsqueda y Filtros
+        </a>
+        
+        <div class="section-title">Extras</div>
+        <a href="#" onclick="showSection('consejos')">
+            <i class="fas fa-lightbulb"></i> Consejos de Uso
+        </a>
+        <a href="#" onclick="showSection('soporte')">
+            <i class="fas fa-phone"></i> Soporte
+        </a>
+    </div>
+    
+    <!-- Content -->
+    <div class="content">
+        <!-- Introducción -->
+        <div id="intro" class="section active">
+            <h2><i class="fas fa-home"></i> Introducción</h2>
+            
+            <div class="card">
+                <div class="card-body">
+                    <p class="lead">
+                        Sistema de control de mantenimiento diseñado para gestionar clientes, equipos industriales, 
+                        mantenimientos preventivos y trabajos de service de manera eficiente y organizada.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-star"></i> Características Principales
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="feature-box">
+                                <h5><i class="fas fa-user-friends"></i> Gestión de Clientes</h5>
+                                <p>Registro completo de clientes con datos de contacto, ubicación y observaciones.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-box">
+                                <h5><i class="fas fa-tools"></i> Control de Equipos</h5>
+                                <p>Inventario detallado de equipos con alertas de antigüedad y especificaciones técnicas.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-box">
+                                <h5><i class="fas fa-calendar-alt"></i> Mantenimiento Preventivo</h5>
+                                <p>Alertas automáticas de vencimiento con cálculo de días pendientes o vencidos.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-box">
+                                <h5><i class="fas fa-clipboard-list"></i> Seguimiento de Trabajos</h5>
+                                <p>Control de trabajos pendientes y finalizados con histórico completo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-tip">
+                <i class="fas fa-info-circle"></i> <strong>Nota:</strong> Cada usuario tiene acceso exclusivo a sus propios datos, 
+                organizados por empresa. La información está protegida y separada por usuario.
+            </div>
+        </div>
+        
+        <!-- Acceso al Sistema -->
+        <div id="acceso" class="section">
+            <h2><i class="fas fa-sign-in-alt"></i> Acceso al Sistema</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-key"></i> Iniciar Sesión
+                </div>
+                <div class="card-body">
+                    <p><span class="step-number">1</span> Ingresa a la página de login del sistema</p>
+                    <p><span class="step-number">2</span> Introduce tu usuario y contraseña</p>
+                    <p><span class="step-number">3</span> El sistema te redirigirá automáticamente a la lista de clientes</p>
+                    
+                    <div class="alert alert-tip mt-3">
+                        <strong><i class="fas fa-flask"></i> Datos de demostración:</strong><br>
+                        <ul class="mb-0 mt-2">
+                            <li>Usuario: <code>admin</code></li>
+                            <li>Contraseña: <code>admin123</code></li>
+                            <li>Empresa: Empresa Demo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </div>
+                <div class="card-body">
+                    <p>Para salir del sistema de forma segura:</p>
+                    <ul>
+                        <li>Haz clic en el botón <strong>"Cerrar Sesión"</strong> ubicado en el menú superior</li>
+                        <li>Serás redirigido automáticamente a la pantalla de login</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gestión de Clientes -->
+        <div id="clientes" class="section">
+            <h2><i class="fas fa-users"></i> Gestión de Clientes</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-eye"></i> Ver Lista de Clientes
+                </div>
+                <div class="card-body">
+                    <p>Al iniciar sesión, verás todos tus clientes organizados en tarjetas que muestran:</p>
+                    <ul>
+                        <li><strong>Nombre del cliente</strong> y datos de contacto</li>
+                        <li><strong>Dirección y localidad</strong></li>
+                        <li><strong>Teléfonos</strong> de contacto (Tel1 y Tel2)</li>
+                        <li><strong>CUIT</strong> - Identificación tributaria</li>
+                        <li><strong>Cantidad de equipos</strong> asociados</li>
+                        <li><strong>Estado del mantenimiento preventivo</strong> (si está configurado)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-plus-circle"></i> Agregar Nuevo Cliente
+                </div>
+                <div class="card-body">
+                    <p><span class="step-number">1</span> Haz clic en el botón <strong>"Agregar Cliente"</strong></p>
+                    
+                    <p><span class="step-number">2</span> Completa el formulario con los datos básicos:</p>
+                    <ul>
+                        <li><strong>Cliente</strong> (obligatorio): Nombre o razón social</li>
+                        <li><strong>Dirección</strong>: Domicilio del cliente</li>
+                        <li><strong>Localidad</strong>: Ciudad donde se encuentra</li>
+                        <li><strong>Tel1 y Tel2</strong>: Números de contacto</li>
+                        <li><strong>CUIT</strong>: Identificación tributaria</li>
+                        <li><strong>Observaciones</strong>: Notas adicionales relevantes</li>
+                    </ul>
+                    
+                    <p><span class="step-number">3</span> Si el cliente tiene mantenimiento preventivo:</p>
+                    <ul>
+                        <li>Marca la casilla <strong>"Preventivo"</strong></li>
+                        <li><strong>Días</strong>: Frecuencia del mantenimiento (ej: 90, 180, 365)</li>
+                        <li><strong>Fecha último mantenimiento</strong>: Se completa automáticamente con la fecha actual</li>
+                        <li><strong>Importe</strong>: Costo del servicio de mantenimiento</li>
+                    </ul>
+                    
+                    <p><span class="step-number">4</span> Haz clic en <strong>"Guardar"</strong></p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-edit"></i> Editar / Eliminar Cliente
+                </div>
+                <div class="card-body">
+                    <h5>Editar Cliente:</h5>
+                    <ol>
+                        <li>En la tarjeta del cliente, haz clic en el botón <strong>"Editar"</strong></li>
+                        <li>Modifica los datos que necesites actualizar</li>
+                        <li>Guarda los cambios</li>
+                    </ol>
+                    
+                    <h5 class="mt-4">Eliminar Cliente:</h5>
+                    <ol>
+                        <li>Haz clic en el botón <strong>"Eliminar"</strong> en la tarjeta del cliente</li>
+                        <li>Confirma la eliminación en el mensaje de alerta</li>
+                    </ol>
+                    
+                    <div class="alert alert-warning-custom mt-3">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Advertencia:</strong> 
+                        Al eliminar un cliente se borrarán también todos los equipos y trabajos asociados. 
+                        Esta acción no se puede deshacer.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-sync-alt"></i> Actualizar Mantenimiento Preventivo
+                </div>
+                <div class="card-body">
+                    <p>Para clientes con mantenimiento preventivo configurado:</p>
+                    <ol>
+                        <li>Haz clic en el botón <strong>"Mantto"</strong> cuando realices el mantenimiento</li>
+                        <li>Confirma la operación</li>
+                        <li>El sistema actualizará automáticamente la fecha del último mantenimiento a hoy</li>
+                        <li>Se recalculará el próximo vencimiento según los días configurados</li>
+                    </ol>
+                    
+                    <h5 class="mt-4">Estados Visuales del Mantenimiento:</h5>
+                    <ul>
+                        <li>
+                            <span class="visual-indicator indicator-green">Verde "OK (X días)"</span> 
+                            - Mantenimiento al día, faltan X días para vencer
+                        </li>
+                        <li>
+                            <span class="visual-indicator indicator-red">Rojo "Vencido (X días)"</span> 
+                            - Mantenimiento vencido hace X días
+                        </li>
+                        <li>
+                            <span class="visual-indicator indicator-yellow">Amarillo "Sin Config"</span> 
+                            - Falta configurar días o fecha de mantenimiento
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gestión de Equipos -->
+        <div id="equipos" class="section">
+            <h2><i class="fas fa-cog"></i> Gestión de Equipos</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-eye"></i> Ver Equipos de un Cliente
+                </div>
+                <div class="card-body">
+                    <ol>
+                        <li>Desde la lista de clientes, haz clic en el botón <strong>"Equipos"</strong></li>
+                        <li>Verás todas las máquinas/equipos asociados a ese cliente</li>
+                        <li>Cada tarjeta muestra información técnica completa del equipo</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-plus-circle"></i> Agregar Nuevo Equipo
+                </div>
+                <div class="card-body">
+                    <p><span class="step-number">1</span> Dentro de la página de equipos del cliente, haz clic en <strong>"Agregar Equipo"</strong></p>
+                    
+                    <p><span class="step-number">2</span> Completa el formulario con los datos técnicos:</p>
+                    <ul>
+                        <li><strong>Código</strong> (obligatorio): Identificador único del equipo</li>
+                        <li><strong>Nº de Serie</strong>: Número de serie del fabricante</li>
+                        <li><strong>Capacidad</strong>: Ej: 5000 frigorías, 10 HP, 3 toneladas, etc.</li>
+                        <li><strong>Marca</strong>: Fabricante del equipo</li>
+                        <li><strong>Modelo</strong>: Modelo específico</li>
+                        <li><strong>Refrigerante</strong>: Tipo de gas (ej: R410A, R134a, R22)</li>
+                        <li><strong>Ubicación</strong>: Dónde está instalado (sala, depósito, exterior, etc.)</li>
+                        <li><strong>Fecha de Instalación</strong>: Fecha de puesta en marcha</li>
+                        <li><strong>Está en altura</strong>: Marcar si requiere andamios o plataforma elevadora</li>
+                        <li><strong>Observaciones</strong>: Notas técnicas adicionales</li>
+                    </ul>
+                    
+                    <p><span class="step-number">3</span> Guarda el equipo</p>
+                    
+                    <div class="alert alert-tip mt-3">
+                        <strong><i class="fas fa-traffic-light"></i> Alertas Visuales por Antigüedad:</strong><br>
+                        <ul class="mb-0 mt-2">
+                            <li>
+                                <span class="visual-indicator indicator-green">Verde</span> 
+                                - Equipo con menos de 1 año (365 días) desde instalación
+                            </li>
+                            <li>
+                                <span class="visual-indicator indicator-red">Rojo</span> 
+                                - Equipo con más de 1 año desde instalación
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-edit"></i> Editar / Eliminar Equipo
+                </div>
+                <div class="card-body">
+                    <h5>Editar Equipo:</h5>
+                    <ol>
+                        <li>En la tarjeta del equipo, haz clic en <strong>"Editar"</strong></li>
+                        <li>Modifica los datos necesarios</li>
+                        <li>Guarda los cambios</li>
+                    </ol>
+                    
+                    <h5 class="mt-4">Eliminar Equipo:</h5>
+                    <ol>
+                        <li>Haz clic en <strong>"Eliminar"</strong></li>
+                        <li>Confirma la operación</li>
+                    </ol>
+                    
+                    <div class="alert alert-warning-custom mt-3">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Advertencia:</strong> 
+                        Al eliminar un equipo se eliminarán todos los trabajos asociados a ese equipo.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-search"></i> Buscar Todos los Equipos
+                </div>
+                <div class="card-body">
+                    <p>Para buscar equipos en toda tu base de datos:</p>
+                    <ol>
+                        <li>Accede a <strong>"Buscar Equipos"</strong> o <strong>"Todos los Equipos"</strong> desde el menú</li>
+                        <li>Usa el formulario de búsqueda por:
+                            <ul>
+                                <li>Código de equipo</li>
+                                <li>Número de serie</li>
+                            </ul>
+                        </li>
+                        <li>Aplica filtros adicionales:
+                            <ul>
+                                <li>Por nombre de cliente</li>
+                                <li>Por marca</li>
+                                <li>Ordenamiento personalizado</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gestión de Trabajos -->
+        <div id="trabajos" class="section">
+            <h2><i class="fas fa-tasks"></i> Gestión de Trabajos</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-eye"></i> Ver Trabajos de un Equipo
+                </div>
+                <div class="card-body">
+                    <ol>
+                        <li>Desde la lista de equipos, haz clic en <strong>"Trabajos"</strong></li>
+                        <li>Verás dos secciones principales:
+                            <ul>
+                                <li><strong>Trabajos Pendientes</strong> (en rojo): Trabajos sin finalizar</li>
+                                <li><strong>Trabajos Finalizados</strong> (en verde): Últimos 10 trabajos completados</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-plus-circle"></i> Agregar Nuevo Trabajo
+                </div>
+                <div class="card-body">
+                    <p><span class="step-number">1</span> Dentro de la página de trabajos del equipo, ve al formulario inferior</p>
+                    
+                    <p><span class="step-number">2</span> Completa los datos del trabajo:</p>
+                    <ul>
+                        <li><strong>Descripción del Trabajo</strong>: Detalla qué se debe hacer o qué se hizo</li>
+                        <li><strong>Fecha</strong>: Fecha del trabajo (se completa automáticamente con hoy)</li>
+                        <li><strong>Marcar como pendiente</strong>: Por defecto está activado para trabajos nuevos</li>
+                    </ul>
+                    
+                    <p><span class="step-number">3</span> Haz clic en <strong>"Agregar Trabajo"</strong></p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-check-circle"></i> Finalizar Trabajo Pendiente
+                </div>
+                <div class="card-body">
+                    <p><span class="step-number">1</span> En un trabajo pendiente, haz clic en <strong>"Finalizar"</strong></p>
+                    
+                    <p><span class="step-number">2</span> Completa la información de resolución:</p>
+                    <ul>
+                        <li><strong>Observaciones</strong>: Describe cómo se resolvió el problema</li>
+                        <li>Incluye repuestos utilizados</li>
+                        <li>Agrega recomendaciones para el cliente</li>
+                        <li>Detalla procedimientos realizados</li>
+                    </ul>
+                    
+                    <p><span class="step-number">3</span> Confirma la finalización</p>
+                    
+                    <div class="alert alert-tip mt-3">
+                        <strong><i class="fas fa-info-circle"></i> ¿Qué sucede al finalizar un trabajo?</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>El trabajo cambia de estado "Pendiente" a "Completado"</li>
+                            <li>Se registra automáticamente la fecha de finalización</li>
+                            <li>Las observaciones quedan guardadas permanentemente</li>
+                            <li>El trabajo desaparece de la lista de pendientes</li>
+                            <li>Aparece en el historial de trabajos finalizados</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-redo"></i> Reabrir Trabajo Finalizado
+                </div>
+                <div class="card-body">
+                    <p>Si cometiste un error o el problema reapareció:</p>
+                    <ol>
+                        <li>En un trabajo finalizado, haz clic en <strong>"Reabrir"</strong></li>
+                        <li>Confirma la operación en el mensaje de alerta</li>
+                        <li>El trabajo volverá a estar en estado pendiente</li>
+                        <li>Se eliminarán las observaciones y fecha de finalización anteriores</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list"></i> Ver Todos los Trabajos Pendientes
+                </div>
+                <div class="card-body">
+                    <ol>
+                        <li>Desde el menú principal, accede a <strong>"Trabajos Pendientes"</strong></li>
+                        <li>Verás todos los trabajos sin finalizar de todos tus clientes</li>
+                        <li>Usa los filtros disponibles para:
+                            <ul>
+                                <li>Buscar por nombre de cliente</li>
+                                <li>Buscar por código de equipo</li>
+                                <li>Filtrar por estado (pendiente/completado)</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mantenimiento Preventivo -->
+        <div id="preventivo" class="section">
+            <h2><i class="fas fa-calendar-check"></i> Mantenimiento Preventivo</h2>
+            
+            <div class="card">
+                <div class="card-body">
+                    <p class="lead">
+                        El sistema calcula automáticamente el estado del mantenimiento preventivo y 
+                        te alerta visualmente sobre vencimientos.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cog"></i> Configuración del Preventivo
+                </div>
+                <div class="card-body">
+                    <p><span class="step-number">1</span> Al crear o editar un cliente, activa la casilla <strong>"Preventivo"</strong></p>
+                    
+                    <p><span class="step-number">2</span> Define los parámetros:</p>
+                    <ul>
+                        <li><strong>Días de frecuencia</strong>: Cada cuántos días se debe realizar (ej: 90, 180, 365)</li>
+                        <li><strong>Fecha último mantenimiento</strong>: Se completa automáticamente con la fecha actual</li>
+                        <li><strong>Importe</strong>: Costo del servicio de mantenimiento preventivo</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-traffic-light"></i> Control Visual del Estado
+                </div>
+                <div class="card-body">
+                    <p>En las tarjetas de clientes con preventivo configurado verás badges de colores:</p>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <div class="alert alert-success">
+                                <h5><span class="visual-indicator indicator-green">OK (X días)</span></h5>
+                                <p class="mb-0"><strong>Significado:</strong> El mantenimiento está al día. Faltan X días para el próximo vencimiento.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-danger">
+                                <h5><span class="visual-indicator indicator-red">Vencido (X días)</span></h5>
+                                <p class="mb-0"><strong>Significado:</strong> El mantenimiento está vencido hace X días. Requiere atención urgente.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-warning">
+                                <h5><span class="visual-indicator indicator-yellow">Sin Config</span></h5>
+                                <p class="mb-0"><strong>Significado:</strong> Falta configurar los días de frecuencia o la fecha de mantenimiento.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-sync-alt"></i> Actualizar Mantenimiento
+                </div>
+                <div class="card-body">
+                    <p>Cuando realizas el mantenimiento preventivo a un cliente:</p>
+                    <ol>
+                        <li>Haz clic en el botón <strong>"Mantto"</strong> en la tarjeta del cliente</li>
+                        <li>Confirma la operación en el mensaje de alerta</li>
+                        <li>La fecha se actualiza automáticamente a hoy</li>
+                        <li>El sistema recalcula el próximo vencimiento sumando los días configurados</li>
+                        <li>El badge cambia a verde mostrando los días restantes</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-sort-amount-down"></i> Priorizar Vencimientos
+                </div>
+                <div class="card-body">
+                    <p>Para planificar tu agenda de mantenimientos:</p>
+                    <ol>
+                        <li>En la lista de clientes, usa el selector <strong>"Ordenar por"</strong></li>
+                        <li>Selecciona <strong>"Vencidos primero"</strong></li>
+                        <li>El sistema mostrará primero los clientes con mantenimientos vencidos</li>
+                        <li>Ordenados por cantidad de días de atraso (mayor a menor)</li>
+                    </ol>
+                    
+                    <div class="alert alert-tip mt-3">
+                        <i class="fas fa-lightbulb"></i> <strong>Consejo:</strong> 
+                        Revisa esta vista al inicio de cada semana para planificar tus mantenimientos pendientes.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Búsqueda y Filtros -->
+        <div id="busqueda" class="section">
+            <h2><i class="fas fa-search"></i> Búsqueda y Filtros</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-filter"></i> Filtros en Lista de Clientes
+                </div>
+                <div class="card-body">
+                    <h5>Buscar por nombre:</h5>
+                    <ul>
+                        <li>Escribe en el campo "Buscar Cliente"</li>
+                        <li>El filtrado es instantáneo mientras escribes</li>
+                        <li>Busca coincidencias parciales (no hace falta escribir el nombre completo)</li>
+                    </ul>
+                    
+                    <h5 class="mt-3">Filtrar por tipo:</h5>
+                    <ul>
+                        <li><strong>Todos los clientes</strong>: Muestra todos sin restricción</li>
+                        <li><strong>Solo con preventivo</strong>: Solo clientes que tienen mantenimiento configurado</li>
+                        <li><strong>Sin preventivo</strong>: Solo clientes sin mantenimiento preventivo</li>
+                    </ul>
+                    
+                    <h5 class="mt-3">Ordenar por:</h5>
+                    <ul>
+                        <li><strong>Nombre A-Z</strong>: Orden alfabético</li>
+                        <li><strong>Vencidos primero</strong>: Prioriza mantenimientos vencidos</li>
+                        <li><strong>Más equipos</strong>: Clientes con mayor cantidad de equipos primero</li>
+                        <li><strong>Menos equipos</strong>: Clientes con menor cantidad de equipos primero</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-search-plus"></i> Búsqueda Global de Equipos
+                </div>
+                <div class="card-body">
+                    <p><span class="step-number">1</span> Accede a <strong>"Todos los Equipos"</strong> o <strong>"Buscar Equipos"</strong></p>
+                    
+                    <p><span class="step-number">2</span> Usa el buscador principal ingresando:</p>
+                    <ul>
+                        <li>Código del equipo</li>
+                        <li>Número de serie completo o parcial</li>
+                    </ul>
+                    
+                    <p><span class="step-number">3</span> Haz clic en <strong>"Buscar"</strong></p>
+                    
+                    <p><span class="step-number">4</span> Refina los resultados con filtros adicionales:</p>
+                    <ul>
+                        <li><strong>Por cliente</strong>: Filtra por nombre del cliente</li>
+                        <li><strong>Por marca</strong>: Filtra por fabricante</li>
+                        <li><strong>Ordenamiento</strong>: Por cliente, código o marca</li>
+                    </ul>
+                    
+                    <div class="alert alert-tip mt-3">
+                        <i class="fas fa-info-circle"></i> 
+                        El sistema muestra coincidencias parciales, por lo que no necesitas escribir 
+                        el código o serie completo.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-filter"></i> Filtros en Trabajos
+                </div>
+                <div class="card-body">
+                    <p>En las vistas de "Trabajos Pendientes" y "Todos los Trabajos" puedes filtrar por:</p>
+                    <ul>
+                        <li><strong>Cliente</strong>: Busca por nombre del cliente</li>
+                        <li><strong>Equipo</strong>: Busca por código de equipo</li>
+                        <li><strong>Estado</strong>: Todos / Solo Pendientes / Solo Completados</li>
+                    </ul>
+                    
+                    <p class="mt-3">Los trabajos se ordenan automáticamente por fecha (más recientes primero).</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-eraser"></i> Limpiar Filtros
+                </div>
+                <div class="card-body">
+                    <p>En cualquier vista con filtros disponibles:</p>
+                    <ul>
+                        <li>Haz clic en el botón <strong>"Limpiar filtros"</strong></li>
+                        <li>Esto resetea todos los criterios de búsqueda y ordenamiento</li>
+                        <li>Vuelve a la vista predeterminada</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Consejos de Uso -->
+        <div id="consejos" class="section">
+            <h2><i class="fas fa-lightbulb"></i> Consejos de Uso</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-rocket"></i> Mejora tu Productividad
+                </div>
+                <div class="card-body">
+                    <div class="feature-box">
+                        <h5><i class="fas fa-check-circle"></i> Configura preventivos desde el inicio</h5>
+                        <p>Al crear un cliente nuevo, si tiene mantenimiento periódico, configúralo inmediatamente. 
+                        Esto te permitirá recibir alertas automáticas y planificar mejor.</p>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h5><i class="fas fa-sort-amount-down"></i> Usa "Vencidos primero"</h5>
+                        <p>Al inicio de cada semana, ordena los clientes por vencidos primero para ver 
+                        qué mantenimientos requieren atención urgente.</p>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h5><i class="fas fa-clock"></i> Actualiza trabajos inmediatamente</h5>
+                        <p>Cuando finalices un trabajo, regístralo de inmediato con todos los detalles. 
+                        Esto evita olvidos y mantiene un historial completo.</p>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h5><i class="fas fa-clipboard"></i> Aprovecha las observaciones</h5>
+                        <p>Usa el campo de observaciones en equipos y trabajos para documentar cada intervención, 
+                        repuestos usados, y recomendaciones técnicas.</p>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h5><i class="fas fa-tag"></i> Códigos descriptivos y únicos</h5>
+                        <p>Usa códigos de equipo claros y únicos (ej: "AIRE-OFICINA-01", "CAMARA-DEPOSITO-A"). 
+                        Esto facilita la búsqueda y reduce errores.</p>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h5><i class="fas fa-calendar-alt"></i> Registra fechas de instalación</h5>
+                        <p>Siempre registra la fecha de instalación del equipo. Esto te permite controlar 
+                        garantías y planificar renovaciones.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-eye"></i> Indicadores Visuales Clave
+                </div>
+                <div class="card-body">
+                    <h5>Aprende a interpretar los colores:</h5>
+                    <ul>
+                        <li>
+                            <strong>Bordes verdes</strong> en tarjetas: Todo está en orden, al día
+                        </li>
+                        <li>
+                            <strong>Bordes rojos</strong> en tarjetas: Requiere atención (vencimiento, antigüedad)
+                        </li>
+                        <li>
+                            <strong>Badges de cantidad</strong>: Información rápida sobre equipos o trabajos
+                        </li>
+                        <li>
+                            <strong>Tarjetas con gradiente</strong>: Indican estado especial (preventivo, antigüedad)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-mobile-alt"></i> Uso en Dispositivos Móviles
+                </div>
+                <div class="card-body">
+                    <p>El sistema es completamente responsive y funciona en smartphones y tablets:</p>
+                    <ul>
+                        <li>Las tarjetas se adaptan automáticamente al tamaño de pantalla</li>
+                        <li>Los botones son táctiles y de tamaño adecuado</li>
+                        <li>Puedes actualizar mantenimientos directamente desde el campo</li>
+                        <li>Los filtros funcionan igual que en desktop</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Soporte -->
+        <div id="soporte" class="section">
+            <h2><i class="fas fa-phone"></i> Soporte y Contacto</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-headset"></i> Información de Contacto
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="alert alert-success">
+                                <h5><i class="fas fa-user"></i> Pablo Gustavo Ré</h5>
+                                <p><strong>Teléfono:</strong> <a href="tel:3364537093">336-4537093</a></p>
+                                <p><strong>Web:</strong> <a href="https://www.pablore.com.ar" target="_blank">www.pablore.com.ar</a></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-tip">
+                                <h5><i class="fas fa-question-circle"></i> ¿Necesitas ayuda?</h5>
+                                <p>Si tienes dudas sobre el funcionamiento del sistema, 
+                                problemas técnicos, o estás interesado en contratar el servicio, 
+                                no dudes en contactarnos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-star"></i> Suscripción al Sistema
+                </div>
+                <div class="card-body">
+                    <p>Si estás utilizando la versión de demostración y quieres suscribirte 
+                    para tener tu propia cuenta con acceso completo:</p>
+                    
+                    <ol>
+                        <li>Contacta a través del teléfono o la página web</li>
+                        <li>Te proporcionaremos información sobre planes y precios</li>
+                        <li>Configuramos tu cuenta personalizada</li>
+                        <li>Te damos acceso inmediato al sistema</li>
+                        <li>Incluimos soporte técnico y capacitación</li>
+                    </ol>
+                    
+                    <div class="alert alert-success mt-3">
+                        <h5><i class="fas fa-gift"></i> Beneficios de Suscribirte</h5>
+                        <ul class="mb-0">
+                            <li>Datos exclusivos y privados para tu empresa</li>
+                            <li>Sin límite de clientes, equipos o trabajos</li>
+                            <li>Acceso desde cualquier dispositivo</li>
+                            <li>Actualizaciones automáticas</li>
+                            <li>Soporte técnico incluido</li>
+                            <li>Backups automáticos de tu información</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-book-open"></i> Sobre este Manual
+                </div>
+                <div class="card-body">
+                    <p>Este manual cubre todas las funcionalidades del sistema. Si encuentras algo que 
+                    no está explicado o necesitas más detalles sobre alguna función específica, 
+                    por favor contáctanos.</p>
+                    
+                    <p class="mb-0"><strong>Última actualización:</strong> Versión 1.0 - Sistema de Control de Mantenimiento</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mostrar/ocultar secciones
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Actualizar links activos
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Scroll al inicio
+            window.scrollTo(0, 0);
+            
+            // Cerrar sidebar en móvil
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('show');
+            }
+        }
+        
+        // Toggle sidebar en móvil
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+        
+        // Búsqueda en el contenido
+        function searchContent() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const sections = document.querySelectorAll('.section');
+            let found = false;
+            
+            if (searchTerm === '') {
+                showSection('intro');
+                return;
+            }
+            
+            sections.forEach(section => {
+                const content = section.textContent.toLowerCase();
+                if (content.includes(searchTerm) && !found) {
+                    section.classList.add('active');
+                    found = true;
+                    
+                    // Highlight del término buscado
+                    const elements = section.querySelectorAll('p, li, h3, h5');
+                    elements.forEach(el => {
+                        const text = el.textContent;
+                        if (text.toLowerCase().includes(searchTerm)) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+            
+            if (!found) {
+                alert('No se encontraron resultados para: ' + searchTerm);
+            }
+        }
+        
+        // Cerrar sidebar al hacer clic fuera (móvil)
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.toggle-sidebar');
+            
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                }
+            }
+        });
+        
+        // Atajo de teclado para búsqueda (Ctrl+K)
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'k') {
+                event.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+        });
+    </script>
+</body>
+</html>

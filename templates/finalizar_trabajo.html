@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Finalizar Trabajo{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <!-- Header -->
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h3 class="mb-1">
+                        <i class="fas fa-check-circle"></i> 
+                        Finalizar Trabajo
+                    </h3>
+                    <p class="mb-0">
+                        <strong>Equipo:</strong> {{ equipo.codigo }} - {{ equipo.marca or '' }} {{ equipo.modelo or '' }}
+                    </p>
+                    {% if equipo.ubicacion %}
+                        <small>Ubicación: {{ equipo.ubicacion }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    <!-- Información del trabajo -->
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-info-circle"></i> Trabajo a Finalizar
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1">
+                                    <strong>ID del Trabajo:</strong> #{{ trabajo.id_trabajo }}
+                                </p>
+                                <p class="mb-1">
+                                    <strong>Fecha del Trabajo:</strong> 
+                                    {{ trabajo.fecha.strftime('%d/%m/%Y') if trabajo.fecha else 'Sin fecha' }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1">
+                                    <strong>Estado Actual:</strong> 
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                </p>
+                            </div>
+                        </div>
+                        <hr>
+                        <p class="mb-0">
+                            <strong>Descripción del Problema:</strong><br>
+                            <em>{{ trabajo.descripcion }}</em>
+                        </p>
+                    </div>
+
+                    <!-- Formulario para finalizar -->
+                    <form method="POST" id="finalizarForm">
+                        <div class="mb-4">
+                            <label for="observaciones" class="form-label">
+                                <i class="fas fa-clipboard-check"></i> 
+                                <strong>¿Cómo se resolvió el problema?</strong>
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="observaciones" 
+                                name="observaciones" 
+                                rows="5" 
+                                placeholder="Ejemplo: Se reemplazó la manguera rota por una nueva de 1/2 pulgada. Se verificó el funcionamiento del equipo. No hay más pérdidas de refrigerante."
+                                style="resize: vertical;">
+                            </textarea>
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb text-warning"></i>
+                                <strong>Sugerencias:</strong> Incluye repuestos utilizados, procedimientos realizados, 
+                                recomendaciones para el cliente, etc.
+                            </div>
+                        </div>
+
+                        <!-- Información adicional -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-calendar-check"></i>
+                            <strong>Fecha de finalización:</strong> Se registrará automáticamente como hoy
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-success btn-lg w-100" id="btnFinalizar">
+                                    <i class="fas fa-check-circle"></i> 
+                                    Finalizar Trabajo
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ url_for('trabajos_equipo', id_equipo=equipo.id_equipo) }}" 
+                                   class="btn btn-secondary btn-lg w-100">
+                                    <i class="fas fa-arrow-left"></i> 
+                                    Cancelar y Volver
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tarjeta de ayuda -->
+            <div class="card mt-3 border-info">
+                <div class="card-body">
+                    <h6 class="card-title text-info">
+                        <i class="fas fa-question-circle"></i> ¿Qué sucede al finalizar?
+                    </h6>
+                    <ul class="card-text small mb-0">
+                        <li>El trabajo se marcará como <strong>completado</strong></li>
+                        <li>Se registrará la fecha actual como fecha de finalización</li>
+                        <li>Las observaciones quedarán guardadas para futuras consultas</li>
+                        <li>El trabajo desaparecerá de la lista de "Pendientes"</li>
+                        <li>Siempre podrás reabrirlo si es necesario</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Confirmación antes de finalizar
+    document.getElementById('finalizarForm').addEventListener('submit', function(e) {
+        if (!confirm('¿Está seguro de que desea finalizar este trabajo? Esta acción se puede revertir posteriormente.')) {
+            e.preventDefault();
+        }
+    });
+
+    // Auto-focus en el textarea
+    document.getElementById('observaciones').focus();
+</script>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+    
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    
+    .alert {
+        border-radius: 8px;
+    }
+    
+    .btn {
+        border-radius: 6px;
+    }
+    
+    .form-control {
+        border-radius: 6px;
+    }
+    
+    .badge {
+        font-size: 0.85em;
+    }
+</style>
+
+{% endblock %}

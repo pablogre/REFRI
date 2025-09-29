@@ -5,8 +5,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Sistema Taller{% endblock %}</title>
+   <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon/favicon-32.svg') }}">
+  <link rel="icon" type="image/svg+xml" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32.svg') }}">
+  <link rel="icon" type="image/svg+xml" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16.svg') }}">
+  
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon/apple-touch-icon.svg') }}">
+  
+  <!-- Para navegadores más antiguos (opcional) -->
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon-32.svg') }}">
+  
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  
+  <!-- Font Awesome para iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> 
+  
   <style>
     /* Fuente base ligeramente aumentada */
     body {
@@ -31,8 +46,56 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
       <a class="navbar-brand" href="{{ url_for('index') }}">
-       <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="height: 30px; margin-right: 5px;">
-        HVAC REFRIGERACIÓN
+       <!-- <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="height: 30px; margin-right: 5px;"> -->
+       
+       <svg class="d-none d-md-inline" width="140" height="32" viewBox="0 0 180 40" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px; vertical-align: middle;">
+          <rect x="0" y="0" width="180" height="40" rx="8" fill="#2563eb"/>
+          <g transform="translate(8, 8)">
+            <rect x="0" y="0" width="20" height="16" rx="2" fill="#ffffff" opacity="0.2"/>
+            <rect x="2" y="2" width="3" height="8" rx="1" fill="#ffffff"/>
+            <rect x="6" y="4" width="3" height="6" rx="1" fill="#ffffff"/>
+            <rect x="10" y="3" width="3" height="7" rx="1" fill="#ffffff"/>
+            <rect x="14" y="5" width="3" height="5" rx="1" fill="#ffffff"/>
+            <path d="M2 12 L18 12" stroke="#ffffff" stroke-width="1" opacity="0.6"/>
+            <circle cx="4" cy="12" r="1" fill="#ffffff"/>
+            <circle cx="8" cy="12" r="1" fill="#ffffff"/>
+            <circle cx="12" cy="12" r="1" fill="#ffffff"/>
+            <circle cx="16" cy="12" r="1" fill="#ffffff"/>
+            <circle cx="16" cy="4" r="2" fill="#10b981"/>
+            <circle cx="16" cy="4" r="1" fill="#ffffff"/>
+          </g>
+          <text x="40" y="16" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">CONTROL</text>
+          <text x="40" y="28" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">TOTAL</text>
+          <line x1="36" y1="8" x2="36" y2="32" stroke="#ffffff" stroke-width="1" opacity="0.3"/>
+        </svg>
+
+        <!-- Logo compacto solo para móviles -->
+        <svg class="d-md-none" width="32" height="32" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px; vertical-align: middle;">
+          <rect x="0" y="0" width="40" height="40" rx="8" fill="#2563eb"/>
+          <g transform="translate(10, 10)">
+            <rect x="0" y="0" width="20" height="16" rx="2" fill="#ffffff" opacity="0.2"/>
+            <rect x="2" y="2" width="3" height="8" rx="1" fill="#ffffff"/>
+            <rect x="6" y="4" width="3" height="6" rx="1" fill="#ffffff"/>
+            <rect x="10" y="3" width="3" height="7" rx="1" fill="#ffffff"/>
+            <rect x="14" y="5" width="3" height="5" rx="1" fill="#ffffff"/>
+            <path d="M2 12 L18 12" stroke="#ffffff" stroke-width="1" opacity="0.6"/>
+            <circle cx="4" cy="12" r="1" fill="#ffffff"/>
+            <circle cx="8" cy="12" r="1" fill="#ffffff"/>
+            <circle cx="12" cy="12" r="1" fill="#ffffff"/>
+            <circle cx="16" cy="12" r="1" fill="#ffffff"/>
+            <circle cx="16" cy="4" r="2" fill="#10b981"/>
+            <circle cx="16" cy="4" r="1" fill="#ffffff"/>
+          </g>
+        </svg>
+       
+       <!-- Versión más completa -->
+        {% if session.get('empresa') %}
+          <span class="d-none d-lg-inline">{{ session['empresa'] }}</span>
+          <span class="d-lg-none">{{ session['empresa'][:20] }}{% if session['empresa']|length > 20 %}...{% endif %}</span>
+        {% else %}
+          <span class="d-none d-lg-inline">CONTROL TOTAL</span>
+          <span class="d-lg-none">Control Total</span>
+        {% endif %}
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -60,6 +123,16 @@
     {% block content %}{% endblock %}
   </div>
 
+<a href="{{ url_for('ayuda') }}" target="_blank" 
+   class="btn btn-primary" 
+   style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; 
+          border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+          display: flex; align-items: center; justify-content: center; 
+          font-size: 24px; z-index: 1000;"
+   title="Abrir manual de ayuda">
+    <i class="fas fa-question"></i>
+</a>
+  
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- SweetAlert2 -->
@@ -67,8 +140,6 @@
   <!-- Confirmación de eliminación con SweetAlert2 -->
   <script>
     
-  
-
     // Función global para confirmaciones de eliminación
     function confirmarEliminacion(evento, tipo, nombre) {
         evento.preventDefault(); // Prevenir el envío del formulario
@@ -114,5 +185,6 @@
         });
     }
   </script>
+
 </body>
 </html>

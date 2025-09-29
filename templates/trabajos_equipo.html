@@ -6,19 +6,22 @@
     <h2>Trabajos del Equipo: {{ equipo.codigo }}</h2>
     <a href="{{ url_for('equipos', id_cli=equipo.id_cli) }}" class="btn btn-secondary mb-3">Volver a Equipos</a>
  
-    <!-- Listado de trabajos en Cards -->
+    <!-- TRABAJOS PENDIENTES -->
     <div class="mb-4">
-        <h4>Trabajos Existentes</h4>
-        {% if trabajos %}
+        <h4 class="text-danger">
+            <i class="fas fa-exclamation-triangle"></i> Trabajos Pendientes
+            {% if trabajos_pendientes %}
+                <span class="badge bg-danger">{{ trabajos_pendientes|length }}</span>
+            {% endif %}
+        </h4>
+        {% if trabajos_pendientes %}
         <div class="row">
-            {% for trabajo in trabajos %}
+            {% for trabajo in trabajos_pendientes %}
             <div class="col-12 col-md-6 col-lg-4 mb-3">
-                <div class="card h-100 trabajo-card {{ 'pendiente' if trabajo.pendiente == 1 else 'completado' }}">
+                <div class="card h-100 trabajo-card pendiente">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="mb-0"><strong>Trabajo #{{ trabajo['id_trabajo'] }}</strong></h6>
-                        <span class="badge {{ 'bg-danger' if trabajo.pendiente == 1 else 'bg-success' }}">
-                            {{ 'Pendiente' if trabajo.pendiente == 1 else 'Completado' }}
-                        </span>
+                        <span class="badge bg-danger">Pendiente</span>
                     </div>
                     <div class="card-body">
                         <div class="mb-2">
@@ -32,11 +35,16 @@
                     </div>
                     <div class="card-footer">
                         <div class="botones-trabajo">
+                            <!-- BOTÓN PARA FINALIZAR -->
+                            <a href="{{ url_for('finalizar_trabajo', id_trabajo=trabajo.id_trabajo, id_equipo=equipo.id_equipo) }}" 
+                               class="btn btn-success">
+                                <i class="fas fa-check"></i> Finalizar
+                            </a>
                             <form action="{{ url_for('eliminar_trabajo', id_trabajo=trabajo.id_trabajo, id_equipo=equipo.id_equipo) }}" 
-                                  method="post">
+                                  method="post" class="d-inline">
                                 <button type="submit" class="btn btn-danger"
                                         onclick="confirmarEliminacion(event, 'el trabajo', '#{{ trabajo['id_trabajo'] }}')">
-                                    Eliminar
+                                    <i class="fas fa-trash"></i> Eliminar
                                 </button>
                             </form>
                         </div>
@@ -46,8 +54,74 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="text-center mt-4">
-            <p class="text-muted">No hay trabajos cargados para este equipo.</p>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> No hay trabajos pendientes para este equipo.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- TRABAJOS FINALIZADOS -->
+    <div class="mb-4">
+        <h4 class="text-success">
+            <i class="fas fa-check-circle"></i> Trabajos Finalizados (Últimos 10)
+        </h4>
+        {% if trabajos_finalizados %}
+        <div class="row">
+            {% for trabajo in trabajos_finalizados %}
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                <div class="card h-100 trabajo-card completado">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><strong>Trabajo #{{ trabajo['id_trabajo'] }}</strong></h6>
+                        <span class="badge bg-success">Completado</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted">Fecha:</small><br>
+                                <strong>{{ trabajo.fecha.strftime('%d/%m/%Y') if trabajo.fecha else 'Sin fecha' }}</strong>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Finalizado:</small><br>
+                                <strong>{{ trabajo.fecha_finalizacion.strftime('%d/%m/%Y') if trabajo.fecha_finalizacion else '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Descripción:</small><br>
+                            <p class="mb-0">{{ trabajo['descripcion'] }}</p>
+                        </div>
+                        {% if trabajo.observaciones %}
+                        <div class="mb-2">
+                            <small class="text-muted">Resolución:</small><br>
+                            <p class="mb-0 text-success">{{ trabajo.observaciones }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <div class="botones-trabajo">
+                            <!-- BOTÓN PARA REABRIR -->
+                            <form action="{{ url_for('reabrir_trabajo', id_trabajo=trabajo.id_trabajo, id_equipo=equipo.id_equipo) }}" 
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-warning" 
+                                        onclick="return confirm('¿Reabrir este trabajo como pendiente?')">
+                                    <i class="fas fa-redo"></i> Reabrir
+                                </button>
+                            </form>
+                            <form action="{{ url_for('eliminar_trabajo', id_trabajo=trabajo.id_trabajo, id_equipo=equipo.id_equipo) }}" 
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="confirmarEliminacion(event, 'el trabajo', '#{{ trabajo['id_trabajo'] }}')">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No hay trabajos finalizados para mostrar.
         </div>
         {% endif %}
     </div>
@@ -56,8 +130,8 @@
     <hr style="border: 2px solid #dee2e6; margin: 2rem 0;">   
     
     <div class="card">
-        <div class="card-header">
-            <h4 class="mb-0">Agregar Nuevo Trabajo</h4>
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-plus"></i> Agregar Nuevo Trabajo</h4>
         </div>
         <div class="card-body">
             <form method="POST">
@@ -71,8 +145,9 @@
                     <input type="date" id="fecha" name="fecha" class="form-control" required>
                 </div>
                 <div class="form-check mb-3">
-                    <input type="checkbox" id="pendiente" name="pendiente" class="form-check-input">
+                    <input type="checkbox" id="pendiente" name="pendiente" class="form-check-input" checked>
                     <label for="pendiente" class="form-check-label">Marcar como pendiente</label>
+                    <small class="form-text text-muted">Los trabajos nuevos generalmente se marcan como pendientes</small>
                 </div>
                 <button type="submit" class="btn btn-success btn-lg">
                     <i class="fas fa-plus"></i> Agregar Trabajo
@@ -115,8 +190,8 @@
     }
     
     .botones-trabajo .btn {
-        font-size: 0.95rem;
-        padding: 10px 15px;
+        font-size: 0.9rem;
+        padding: 8px 12px;
         font-weight: 500;
         border: none;
         border-radius: 5px;
@@ -134,10 +209,16 @@
         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    /* Formulario mejorado */
-    .card-header {
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
+    /* En pantallas medianas, botones en fila */
+    @media (min-width: 768px) {
+        .botones-trabajo {
+            flex-direction: row;
+        }
+        
+        .botones-trabajo .btn {
+            font-size: 0.8rem;
+            padding: 6px 10px;
+        }
     }
 
     /* Media queries para móviles */
@@ -167,6 +248,21 @@
             padding: 12px 24px;
             font-size: 1.1rem;
         }
+    }
+
+    /* Separación visual entre secciones */
+    h4 {
+        border-bottom: 2px solid;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    h4.text-danger {
+        border-color: #dc3545;
+    }
+
+    h4.text-success {
+        border-color: #28a745;
     }
 </style>
 
