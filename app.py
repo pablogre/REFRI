@@ -6,6 +6,11 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'mi_clave_super_secreta_4567_multiempresa'
 
+# Agrega estas líneas inmediatamente después de secret_key
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600
+
 # Configuración de la base de datos
 def get_db_connection():
     try:
@@ -29,6 +34,8 @@ def get_db_connection():
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        print(f"Sesión: {dict(session)}")  # Ver contenido de sesión
+        
         if 'user_id' not in session or 'user_name' not in session:
             flash('Debe iniciar sesión para acceder')
             return redirect(url_for('login'))
@@ -48,7 +55,10 @@ def get_current_empresa():
 # ==================== RUTAS PRINCIPALES ====================
 @app.route('/')
 def index():
-    session.clear()
+    # Si ya está logueado, ir a clientes
+    if 'user_id' in session:
+        return redirect(url_for('clientes'))
+    # Si no está logueado, ir al login
     return redirect(url_for('login'))
 
 # ==================== AUTENTICACIÓN ====================
